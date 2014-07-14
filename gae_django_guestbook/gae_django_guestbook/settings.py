@@ -1,4 +1,5 @@
 # Django settings for gae_django_guestbook project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -104,11 +105,12 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'gae_django_guestbook.urls'
 
+ROOT_PATH = os.path.dirname(__file__)
+
+TEMPLATE_DIRS = (os.path.join(ROOT_PATH, "templates"),)
+
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'gae_django_guestbook.wsgi.application'
-
-import os
-TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\','/'),)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -121,7 +123,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'Guestbook',
+    'guestbook',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
