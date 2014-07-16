@@ -8,7 +8,6 @@ handlers:
 - url: /static
   static_dir: static
 
-# main app should below other urls
 - url: /.*
   script: main.app
 
