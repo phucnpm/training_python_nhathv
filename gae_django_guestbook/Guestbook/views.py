@@ -6,7 +6,7 @@ from google.appengine.api import users, memcache
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
 
-from guestbook.models import Greeting
+from guestbook.models import Guestbook
 
 
 class MainPageView(TemplateView):
@@ -43,24 +43,21 @@ class MainPageView(TemplateView):
 
     def get_queryset(self):
         guestbook_name = self.request.GET.get('guestbook_name', 'default_guestbook')
-        guestbook_key = Greeting.get_key_from_name(guestbook_name)
-        greetings_query = Greeting.query(
-            ancestor=guestbook_key).order(-Greeting.date)
-        greetings = greetings_query.fetch(10)
+        guestbook = Guestbook()
+        greetings = guestbook.get_lastest_greeting(guestbook_name, 10)
 
         return greetings
 
     def post(self, request):
         guestbook_name = request.POST.get('guestbook_name')
-        guestbook_key = Greeting.get_key_from_name(guestbook_name)
-        greeting = Greeting(parent=guestbook_key)
-
         if users.get_current_user():
-            greeting.author = users.get_current_user().nickname()
+            greeting_author = users.get_current_user().nickname()
+        else:
+            greeting_author = None
+        greeting_content = request.POST.get('content')
 
-        greeting.content = request.POST.get('content')
-        # save object
-        greeting.put()
+        guestbook = Guestbook()
+        guestbook.put_greeting_with_data(guestbook_name, greeting_author, greeting_content)
 
         # clear cache
         memcache.delete('%s:greetings' % guestbook_name)
