@@ -5,14 +5,12 @@ from google.appengine.api import users, memcache
 
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
-from django.views.generic.edit import BaseCreateView
 
 from guestbook.models import Greeting
 
 
-class MainPageView(TemplateView, BaseCreateView):
+class MainPageView(TemplateView):
     template_name = "guestbook/main_page.html"
-    object = None
 
     def get_context_data(self, **kwargs):
         context = super(MainPageView, self).get_context_data(**kwargs)
@@ -52,7 +50,7 @@ class MainPageView(TemplateView, BaseCreateView):
 
         return greetings
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         guestbook_name = request.POST.get('guestbook_name')
         guestbook_key = Greeting.get_key_from_name(guestbook_name)
         greeting = Greeting(parent=guestbook_key)
