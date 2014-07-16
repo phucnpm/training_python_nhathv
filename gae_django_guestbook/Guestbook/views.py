@@ -1,36 +1,40 @@
 import logging
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-
+from django.views.generic import TemplateView
 from google.appengine.api import users
 
 from guestbook.models import Greeting
 
 import urllib
 
-def main_page(request):
-    guestbook_name = request.GET.get('guestbook_name', 'default_guestbook')
-    guestbook_key = Greeting.get_key_from_name(guestbook_name)
-    greetings_query = Greeting.query(
-            ancestor=guestbook_key).order(-Greeting.date)
-    greetings = greetings_query.fetch(10)
+class MainPageView(TemplateView):
+    model = Greeting
+    template_name = "guestbook/main_page.html"
 
-    if users.get_current_user():
-        url = users.create_logout_url(request.get_full_path())
-        url_linktext = 'Logout'
-    else:
-        url = users.create_login_url(request.get_full_path())
-        url_linktext = 'Login'
-    template_values = {
-        'greetings': greetings,
-        'guestbook_name': guestbook_name,
-        'url': url,
-        'url_linktext': url_linktext,
-    }
-    return render_to_response('guestbook/main_page.html',
-                          template_values,
-                          context_instance=RequestContext(request))
+    def get_context_data(self, **kwargs):
+        context = super(MainPageView, self).get_context_data(**kwargs)
+        context['greetings'] = self.get_queryset()
+        context['guestbook_name'] = self.request.GET.get('guestbook_name', 'default_guestbook')
+        if users.get_current_user():
+            url = users.create_logout_url(self.request.get_full_path())
+            url_linktext = 'Logout'
+        else:
+            url = users.create_login_url(self.request.get_full_path())
+            url_linktext = 'Login'
+        context['url'] = url
+        context['url_linktext'] = url_linktext
+
+        return context
+
+    def get_queryset(self):
+        guestbook_name = self.request.GET.get('guestbook_name', 'default_guestbook')
+        guestbook_key = Greeting.get_key_from_name(guestbook_name)
+        greetings_query = Greeting.query(
+            ancestor=guestbook_key).order(-Greeting.date)
+        greetings = greetings_query.fetch(10)
+        logging.warning("%s", greetings)
+
+        return greetings
 
 def sign_post(request):
     if request.method == 'POST':
@@ -39,12 +43,7 @@ def sign_post(request):
         greeting = Greeting(parent=guestbook_key)
 
         if users.get_current_user():
-            logging.warning("Exist user")
             greeting.author = users.get_current_user().nickname()
-            logging.warning("%s" %greeting.author)
-        else:
-            greeting.author = None
-            logging.warning("%s" %greeting.author)
 
         greeting.content = request.POST.get('content')
         greeting.put()
