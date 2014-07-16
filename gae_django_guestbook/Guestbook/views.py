@@ -1,7 +1,6 @@
-import logging
 import urllib
 
-from google.appengine.api import users, memcache
+from google.appengine.api import users
 
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
