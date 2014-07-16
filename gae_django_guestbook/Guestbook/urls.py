@@ -6,5 +6,5 @@ from guestbook import views
 
 urlpatterns = patterns('',
     url(r'^$', views.MainPageView.as_view(), name='mainpage'),
-    url(r'^sign/$', views.sign_post, name='sign_post')
+    url(r'^sign/$', views.MainPageView.as_view(), name='mainpage_post')
 )
