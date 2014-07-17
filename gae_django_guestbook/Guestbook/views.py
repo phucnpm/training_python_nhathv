@@ -1,5 +1,8 @@
+import urllib
+
 from google.appengine.api import users
 
+from django.http import HttpResponseRedirect
 from django.views.generic.edit import FormView
 
 from guestbook.models import Guestbook
@@ -47,5 +50,8 @@ class MainPageView(FormView):
     def form_valid(self, form):
 
         form.save_greeting()
+
+        guestbook_name = form.cleaned_data['guestbook_name']
+        self.success_url = '/?' + urllib.urlencode({'guestbook_name': guestbook_name})
 
         return super(MainPageView, self).form_valid(form)
