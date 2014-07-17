@@ -11,11 +11,10 @@
       {% endif %}
       <blockquote>{{ greeting.content|escape }}</blockquote>
     {% endfor %}
-
-    <form action="/sign/" method="post">
+    ============================
+    <form action="" method="post">
       {% csrf_token %}
-      <input type="hidden" name="guestbook_name" value="{{ guestbook_name }}" />
-      <div><textarea name="content" rows="3" cols="60"></textarea></div>
+        {{ form.as_p }}
       <div><input type="submit" value="Sign Guestbook"></div>
     </form>
 

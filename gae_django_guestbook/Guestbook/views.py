@@ -1,26 +1,26 @@
-import urllib
-
 from google.appengine.api import users
 
-from django.http import HttpResponseRedirect
-from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
 
 from guestbook.models import Guestbook
+from guestbook.forms import GreetingForm
+from guestbook.appconstants import AppConstants
 
-DEFAULT_NUMBER_OF_GREETING = 10
 
-
-class MainPageView(TemplateView):
+class MainPageView(FormView):
     template_name = "guestbook/main_page.html"
+    form_class = GreetingForm
+    success_url = '/'
 
     def get_context_data(self, **kwargs):
         context = super(MainPageView, self).get_context_data(**kwargs)
 
         # get guestbook_name
-        guestbook_name = self.request.GET.get('guestbook_name', Guestbook.get_default_name())
+        guestbook_name = self.request.GET.get('guestbook_name',
+                                              AppConstants.get_default_guestbook_name())
 
         # get list of Greeting
-        greetings = self.get_queryset(DEFAULT_NUMBER_OF_GREETING)
+        greetings = self.get_queryset()
 
         # create login/logout url
         if users.get_current_user():
@@ -37,20 +37,15 @@ class MainPageView(TemplateView):
 
         return context
 
-    def get_queryset(self, number_of_greeting):
-        guestbook_name = self.request.GET.get('guestbook_name', Guestbook.get_default_name())
+    def get_queryset(self, number_of_greeting=AppConstants.get_default_number_of_greeting()):
+        guestbook_name = self.request.GET.get('guestbook_name',
+                                              AppConstants.get_default_guestbook_name())
         greetings = Guestbook.get_lastest_greeting(guestbook_name, number_of_greeting)
 
         return greetings
 
-    def post(self, request):
-        guestbook_name = request.POST.get('guestbook_name')
-        if users.get_current_user():
-            greeting_author = users.get_current_user().nickname()
-        else:
-            greeting_author = None
-        greeting_content = request.POST.get('content')
+    def form_valid(self, form):
 
-        Guestbook.put_greeting_with_data(guestbook_name, greeting_author, greeting_content)
+        form.save_greeting()
 
-        return HttpResponseRedirect('/?' + urllib.urlencode({'guestbook_name': guestbook_name}))
+        return super(MainPageView, self).form_valid(form)
