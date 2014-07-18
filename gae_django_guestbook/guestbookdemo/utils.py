@@ -1,11 +1,10 @@
-from django.http.response import HttpResponse
-
 __author__ = 'NhatHV'
 import logging
 
 from google.appengine.api import users, mail
 
 from django.views.generic import View
+from django.http import HttpResponse
 
 from guestbookdemo.appconstants import AppConstants
 
