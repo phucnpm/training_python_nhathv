@@ -4,7 +4,7 @@ from google.appengine.api import users
 
 from django import forms
 
-from guestbook.models import Guestbook
+from guestbookdemo.models import Guestbook
 
 
 class GreetingForm(forms.Form):

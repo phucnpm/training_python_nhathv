@@ -5,9 +5,9 @@ from google.appengine.api import users
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
-from guestbook.models import Guestbook
-from guestbook.forms import GreetingForm, SwitchGuestbookForm
-from guestbook.appconstants import AppConstants
+from guestbookdemo.models import Guestbook
+from guestbookdemo.forms import GreetingForm, SwitchGuestbookForm
+from guestbookdemo.appconstants import AppConstants
 
 
 class MainPageView(TemplateView):
@@ -41,7 +41,7 @@ class MainPageView(TemplateView):
                                    GreetingForm(initial={'guestbook_name': guestbook_name}))
         context['sign_guestbook_form'] = greeting_form
 
-         # get switch guestbook form in in_valid case (if needed)
+         # get switch guestbookdemo form in in_valid case (if needed)
         switch_guestbook_form = kwargs.get('switch_guestbook_form',
                                            SwitchGuestbookForm(initial={'guestbook_name': guestbook_name}))
         context['switch_guestbook_form'] = switch_guestbook_form

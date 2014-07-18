@@ -2,7 +2,7 @@ __author__ = 'NhatHV'
 
 from django.conf.urls import patterns, url
 
-from guestbook import views
+from guestbookdemo import views
 
 urlpatterns = patterns('',
     url(r'^$', views.MainPageView.as_view(), name='mainpage'),

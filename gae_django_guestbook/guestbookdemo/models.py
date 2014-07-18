@@ -3,7 +3,7 @@ import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
 
-from guestbook.appconstants import AppConstants
+from guestbookdemo.appconstants import AppConstants
 
 
 class Greeting(ndb.Model):
@@ -13,7 +13,7 @@ class Greeting(ndb.Model):
 
     @classmethod
     def get_key_from_name(cls, guestbook_name=None):
-        return ndb.Key('guestbook', guestbook_name or AppConstants.get_default_guestbook_name())
+        return ndb.Key('guestbookdemo', guestbook_name or AppConstants.get_default_guestbook_name())
 
 
 class Guestbook:
