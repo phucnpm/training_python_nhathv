@@ -3,8 +3,7 @@ import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
 
-DEFAULT_GUESTBOOK_NAME = 'default_guestbook'
-DEFAULT_CACHE_TIME = 3600 * 24 * 30
+from guestbookdemo.appconstants import AppConstants
 
 
 class Greeting(ndb.Model):
@@ -14,7 +13,7 @@ class Greeting(ndb.Model):
 
     @classmethod
     def get_key_from_name(cls, guestbook_name=None):
-        return ndb.Key('guestbook', guestbook_name or DEFAULT_GUESTBOOK_NAME)
+        return ndb.Key('guestbookdemo', guestbook_name or AppConstants.get_default_guestbook_name())
 
 
 class Guestbook:
@@ -28,9 +27,9 @@ class Guestbook:
                 ancestor=guestbook_key).order(-Greeting.date)
             greetings = greetings_query.fetch(number_of_greeting)
 
-            if not memcache.add('%s:greetings' % guestbook_name, greetings, DEFAULT_CACHE_TIME):
+            if not memcache.add('%s:greetings' % guestbook_name, greetings,
+                                AppConstants.get_default_cache_time()):
                 logging.error('Memcache set failed.')
-
 
         return greetings
 
@@ -47,7 +46,3 @@ class Guestbook:
 
         # clear cache
         memcache.delete('%s:greetings' % guestbook_name)
-
-    @classmethod
-    def get_default_name(cls):
-        return DEFAULT_GUESTBOOK_NAME
