@@ -36,10 +36,14 @@ class MainPageView(TemplateView):
         context['url'] = url
         context['url_linktext'] = url_linktext
 
-        greeting_form = GreetingForm(initial={'guestbook_name': guestbook_name})
+        # get greeting form in in_valid case (if needed)
+        greeting_form = kwargs.get('sign_guestbook_form',
+                                   GreetingForm(initial={'guestbook_name': guestbook_name}))
         context['sign_guestbook_form'] = greeting_form
 
-        switch_guestbook_form = SwitchGuestbookForm(initial={'guestbook_name': guestbook_name})
+         # get switch guestbook form in in_valid case (if needed)
+        switch_guestbook_form = kwargs.get('switch_guestbook_form',
+                                           SwitchGuestbookForm(initial={'guestbook_name': guestbook_name}))
         context['switch_guestbook_form'] = switch_guestbook_form
 
         return context
@@ -68,7 +72,7 @@ class SignGuestbook(MainPageView, FormView):
 
     def form_invalid(self, form):
 
-        return self.render_to_response(self.get_context_data(sign_guestbook_form_error=form))
+        return self.render_to_response(self.get_context_data(sign_guestbook_form=form))
 
 
 class SwitchGuestbook(MainPageView, FormView):
@@ -85,4 +89,4 @@ class SwitchGuestbook(MainPageView, FormView):
 
     def form_invalid(self, form):
 
-        return self.render_to_response(self.get_context_data(switch_guestbook_form_error=form))
+        return self.render_to_response(self.get_context_data(switch_guestbook_form=form))

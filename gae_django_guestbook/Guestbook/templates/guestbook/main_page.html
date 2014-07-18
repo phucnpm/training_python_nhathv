@@ -12,13 +12,6 @@
       <blockquote>{{ greeting.content|escape }}</blockquote>
     {% endfor %}
     ============================
-    {% if sign_guestbook_form_error.content.errors %}
-        <ol>
-        {% for error in sign_guestbook_form_error.content.errors %}
-            <li><strong>{{ error|escape }}</strong></li>
-        {% endfor %}
-        </ol>
-    {% endif %}
     <form action="/sign_guestbook/" method="post">
       {% csrf_token %}
         {{ sign_guestbook_form.as_p }}
@@ -28,13 +21,6 @@
     <a href="{{ url }}">{{ url_linktext }}</a>
     </br>
     ============================
-    {% if switch_guestbook_form_error.guestbook_name.errors %}
-        <ol>
-        {% for error in switch_guestbook_form_error.guestbook_name.errors %}
-            <li><strong>{{ error|escape }}</strong></li>
-        {% endfor %}
-        </ol>
-    {% endif %}
      <form action="/switch_guestbook/" method="post">
       {% csrf_token %}
         {{ switch_guestbook_form.as_p }}

@@ -28,8 +28,3 @@ class GreetingForm(forms.Form):
 class SwitchGuestbookForm(forms.Form):
     guestbook_name = forms.CharField(max_length=20,
                                      label="Guestbook name",)
-
-    def switch_guestbook(self):
-        guestbook_name = self.cleaned_data['guestbook_name']
-
-        return guestbook_name
