@@ -2,18 +2,16 @@ import urllib
 
 from google.appengine.api import users
 
-from django.http import HttpResponseRedirect
+from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from guestbook.models import Guestbook
-from guestbook.forms import GreetingForm
+from guestbook.forms import GreetingForm, SwitchGuestbookForm
 from guestbook.appconstants import AppConstants
 
 
-class MainPageView(FormView):
+class MainPageView(TemplateView):
     template_name = "guestbook/main_page.html"
-    form_class = GreetingForm
-    success_url = '/'
 
     def get_context_data(self, **kwargs):
         context = super(MainPageView, self).get_context_data(**kwargs)
@@ -38,6 +36,12 @@ class MainPageView(FormView):
         context['url'] = url
         context['url_linktext'] = url_linktext
 
+        greeting_form = GreetingForm(initial={'guestbook_name': guestbook_name})
+        context['sign_guestbook_form'] = greeting_form
+
+        switch_guestbook_form = SwitchGuestbookForm(initial={'guestbook_name': guestbook_name})
+        context['switch_guestbook_form'] = switch_guestbook_form
+
         return context
 
     def get_queryset(self, number_of_greeting=AppConstants.get_default_number_of_greeting()):
@@ -47,11 +51,38 @@ class MainPageView(FormView):
 
         return greetings
 
-    def form_valid(self, form):
 
+class SignGuestbook(MainPageView, FormView):
+    template_name = "guestbook/main_page.html"
+    form_class = GreetingForm
+    success_url = '/'
+
+    def form_valid(self, form):
         form.save_greeting()
+
+        # get guestbook_name
+        guestbook_name = form.cleaned_data['guestbook_name']
+        self.success_url = '/?' + urllib.urlencode({'guestbook_name': guestbook_name})
+
+        return super(SignGuestbook, self).form_valid(form)
+
+    def form_invalid(self, form):
+
+        return self.render_to_response(self.get_context_data(sign_guestbook_form_error=form))
+
+
+class SwitchGuestbook(MainPageView, FormView):
+    template_name = "guestbook/main_page.html"
+    form_class = SwitchGuestbookForm
+    success_url = '/'
+
+    def form_valid(self, form):
 
         guestbook_name = form.cleaned_data['guestbook_name']
         self.success_url = '/?' + urllib.urlencode({'guestbook_name': guestbook_name})
 
-        return super(MainPageView, self).form_valid(form)
+        return super(SwitchGuestbook, self).form_valid(form)
+
+    def form_invalid(self, form):
+
+        return self.render_to_response(self.get_context_data(switch_guestbook_form_error=form))

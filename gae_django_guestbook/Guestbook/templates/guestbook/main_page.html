@@ -12,13 +12,33 @@
       <blockquote>{{ greeting.content|escape }}</blockquote>
     {% endfor %}
     ============================
-    <form action="" method="post">
+    {% if sign_guestbook_form_error.content.errors %}
+        <ol>
+        {% for error in sign_guestbook_form_error.content.errors %}
+            <li><strong>{{ error|escape }}</strong></li>
+        {% endfor %}
+        </ol>
+    {% endif %}
+    <form action="/sign_guestbook/" method="post">
       {% csrf_token %}
-        {{ form.as_p }}
-      <div><input type="submit" value="Sign Guestbook"></div>
+        {{ sign_guestbook_form.as_p }}
+      <div><input name="sign_guestbook" type="submit" value="Sign Guestbook"></div>
     </form>
 
     <a href="{{ url }}">{{ url_linktext }}</a>
-
+    </br>
+    ============================
+    {% if switch_guestbook_form_error.guestbook_name.errors %}
+        <ol>
+        {% for error in switch_guestbook_form_error.guestbook_name.errors %}
+            <li><strong>{{ error|escape }}</strong></li>
+        {% endfor %}
+        </ol>
+    {% endif %}
+     <form action="/switch_guestbook/" method="post">
+      {% csrf_token %}
+        {{ switch_guestbook_form.as_p }}
+      <div><input name="switch_guestbook" type="submit" value="Switch guestbook"></div>
+    </form>
   </body>
 </html>
