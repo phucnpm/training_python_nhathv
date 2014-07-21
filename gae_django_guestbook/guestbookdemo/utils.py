@@ -13,12 +13,12 @@ class SendEmail(View):
 
     def get(self, request, *args, **kwargs):
         # get user email
-        useremail = self.request.GET.get('useremail', 'Anonymous')
-        self.send_email(useremail)
+        user_email = self.request.GET.get('user_email', 'Anonymous')
+        self.send_email(user_email)
 
         return HttpResponse('Email has been sent')
 
-    def send_email(self, useremail):
+    def send_email(self, user_email):
         message = mail.EmailMessage()
         message.sender = AppConstants.get_default_sender_email()
         message.to = AppConstants.get_default_receiver_email()
@@ -29,6 +29,6 @@ class SendEmail(View):
             A new greeting is written by %s, please verify this content at
                 http://upheld-quasar-641.appspot.com
 
-            """ % useremail
+            """ % user_email
 
         message.send()
