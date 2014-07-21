@@ -54,3 +54,18 @@ class Guestbook:
         new_greeting = put_greeting_to_db()
 
         return new_greeting
+
+    @classmethod
+    def delete_greeting_by_id(cls, guestbook_name, greeting_id):
+        key = ndb.Key('guestbookdemo', guestbook_name, Greeting, int(greeting_id))
+        if key is not None:
+            greeting = key.get()
+
+            if greeting is not None:
+                key.delete()
+
+                # clear cache
+                memcache.delete('%s:greetings' % guestbook_name)
+                return True
+            else:
+                return False

@@ -10,6 +10,9 @@
         An anonymous person wrote:
       {% endif %}
       <blockquote>{{ greeting.content|escape }}</blockquote>
+      <a href="delete/?action=delete-message&guestbook_name={{ guestbook_name }}&greeting_id={{ greeting.key.id }}">Delete</a>
+        <br>
+        <br>
     {% endfor %}
     ============================
     <form action="/sign_guestbook/" method="post">

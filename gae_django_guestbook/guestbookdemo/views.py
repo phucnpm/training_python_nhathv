@@ -5,6 +5,7 @@ from google.appengine.api.labs import taskqueue
 
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
+from django.http import HttpResponseRedirect
 
 from guestbookdemo.models import Guestbook
 from guestbookdemo.forms import GreetingForm, SwitchGuestbookForm
@@ -55,6 +56,23 @@ class MainPageView(TemplateView):
         greetings = Guestbook.get_lastest_greeting(guestbook_name, number_of_greeting)
 
         return greetings
+
+    def get(self, request, *args, **kwargs):
+        action = self.request.GET.get('action', 'list')
+
+        if action == 'delete-message':
+            # get greeting_id
+            greeting_id = self.request.GET.get('greeting_id',-1)
+
+            if greeting_id > 0:
+                # get guestbook_name
+                guestbook_name = self.request.GET.get('guestbook_name',
+                                              AppConstants.get_default_guestbook_name())
+                Guestbook.delete_greeting_by_id(guestbook_name, greeting_id)
+
+                return HttpResponseRedirect('/?' + urllib.urlencode({'guestbook_name': guestbook_name}))
+
+        return super(MainPageView, self).get(request, *args, **kwargs)
 
 
 class SignGuestbook(MainPageView, FormView):
