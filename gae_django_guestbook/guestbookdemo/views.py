@@ -1,6 +1,7 @@
 import urllib
 
 from google.appengine.api import users
+from google.appengine.api.labs import taskqueue
 
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -62,7 +63,16 @@ class SignGuestbook(MainPageView, FormView):
     success_url = '/'
 
     def form_valid(self, form):
-        form.save_greeting()
+        new_greeting = form.save_greeting()
+        if new_greeting:
+            if users.get_current_user():
+                user_email = users.get_current_user().email()
+            else:
+                user_email = "Anonymous"
+
+            taskqueue.add(url='/send_email/',
+                          method='GET',
+                          params={'user_email': user_email})
 
         # get guestbook_name
         guestbook_name = form.cleaned_data['guestbook_name']
