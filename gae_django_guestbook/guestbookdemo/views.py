@@ -156,6 +156,8 @@ class EditGreeting(FormView):
 
     def form_valid(self, form):
         form.update_greeting()
+        guestbook_name = form.cleaned_data['guestbook_name']
+        self.success_url = '/?' + urllib.urlencode({'guestbook_name': guestbook_name})
 
         return super(EditGreeting, self).form_valid(form)
 

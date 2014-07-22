@@ -78,18 +78,20 @@ class Guestbook:
                       Greeting, int(greeting_id))
         if key:
             greeting = key.get()
-            return greeting
+            if greeting:
+                return greeting
+            else:
+                return None
         else:
             return None
 
     @classmethod
     def update_greeting_by_id(cls, guestbook_name, greeting_id, greeting_content, updated_by):
-        key = ndb.Key('guestbookdemo', guestbook_name,
-                      Greeting, int(greeting_id))
-        if key:
+
+        greeting = Guestbook.get_greeting_by_id(guestbook_name, greeting_id)
+        if greeting:
             @ndb.transactional
             def update_greeting(greeting_content):
-                greeting = key.get()
                 greeting.content = greeting_content
                 greeting.updated_by = updated_by
                 greeting.updated_date = datetime.datetime.now()
