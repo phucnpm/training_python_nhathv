@@ -10,11 +10,23 @@
         An anonymous person wrote:
       {% endif %}
       <blockquote>{{ greeting.content|escape }}</blockquote>
-      {% if is_user_admin %}
-      <a href="delete/?action=delete-message&guestbook_name={{ guestbook_name }}&greeting_id={{ greeting.key.id }}">Delete</a>
-        <br>
-        <br>
+      {% if greeting.updated_by %}
+          Updated by: {{ greeting.updated_by }}
+          <br>
+          Updated date: {{ greeting.updated_date }}
       {% endif %}
+        <br>
+      {% if user_login %}
+          {% if is_user_admin %}
+            <a href="/delete/?action=delete-message&guestbook_name={{ guestbook_name }}&greeting_id={{ greeting.key.id }}">Delete</a>
+          {% endif %}
+          {% if is_user_admin or user_login.nickname == greeting.author %}
+            <a href="/edit/?action=edit-message&guestbook_name={{ guestbook_name }}&greeting_id={{ greeting.key.id }}">Edit</a>
+          {% endif %}
+      {% endif %}
+        <br>
+        ******************
+        <br>
     {% endfor %}
     ============================
     <form action="/sign_guestbook/" method="post">

@@ -1,4 +1,4 @@
-import logging
+import logging, datetime
 
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
@@ -10,6 +10,8 @@ class Greeting(ndb.Model):
     author = ndb.StringProperty()
     content = ndb.StringProperty()
     date = ndb.DateTimeProperty(auto_now_add=True)
+    updated_by = ndb.StringProperty()
+    updated_date = ndb.DateTimeProperty(auto_now_add=True)
 
     @classmethod
     def get_key_from_name(cls, guestbook_name=None):
@@ -69,3 +71,40 @@ class Guestbook:
                 return True
             else:
                 return False
+
+    @classmethod
+    def get_greeting_by_id(cls, guestbook_name, greeting_id):
+        key = ndb.Key('guestbookdemo', guestbook_name,
+                      Greeting, int(greeting_id))
+        if key:
+            greeting = key.get()
+            if greeting:
+                return greeting
+            else:
+                return None
+        else:
+            return None
+
+    @classmethod
+    def update_greeting_by_id(cls, guestbook_name, greeting_id, greeting_content, updated_by):
+
+        greeting = cls.get_greeting_by_id(guestbook_name, greeting_id)
+        if greeting:
+            @ndb.transactional
+            def update_greeting(greeting_content):
+                greeting.content = greeting_content
+                greeting.updated_by = updated_by
+                greeting.updated_date = datetime.datetime.now()
+
+                greeting.put()
+
+                # clear cache
+                memcache.delete('%s:greetings' % guestbook_name)
+
+                return greeting
+
+            updated_greeting = update_greeting(greeting_content)
+
+            return updated_greeting
+        else:
+            return None
