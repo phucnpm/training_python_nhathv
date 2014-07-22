@@ -88,7 +88,7 @@ class Guestbook:
     @classmethod
     def update_greeting_by_id(cls, guestbook_name, greeting_id, greeting_content, updated_by):
 
-        greeting = Guestbook.get_greeting_by_id(guestbook_name, greeting_id)
+        greeting = cls.get_greeting_by_id(guestbook_name, greeting_id)
         if greeting:
             @ndb.transactional
             def update_greeting(greeting_content):
