@@ -21,12 +21,20 @@ class Greeting(ndb.Model):
 
     def _to_dict(self, include=None, exclude=None):
         dict = {
-            "author":self.author,
             "content":self.content,
             "date":self.date.strftime("%Y-%m-%d %H:%M +0000"),
-            "updated_by":self.updated_by,
-            "updated_date":self.updated_date.strftime("%Y-%m-%d %H:%M +0000")
+            "updated_by":self.updated_by
         }
+        if self.author:
+            dict['author'] = self.author
+        else:
+            dict['author'] = "Anonymous"
+
+        if self.updated_date:
+            dict['updated_date'] = self.updated_date.strftime("%Y-%m-%d %H:%M +0000")
+        else:
+            dict['updated_date'] = None
+
 
         return dict
 
