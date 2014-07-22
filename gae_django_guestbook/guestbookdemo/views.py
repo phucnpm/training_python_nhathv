@@ -8,7 +8,7 @@ from django.views.generic.edit import FormView
 from django.http import HttpResponseRedirect
 
 from guestbookdemo.models import Guestbook
-from guestbookdemo.forms import GreetingForm, SwitchGuestbookForm
+from guestbookdemo.forms import GreetingForm, SwitchGuestbookForm, EditGreetingForm
 from guestbookdemo.appconstants import AppConstants
 
 
@@ -38,6 +38,7 @@ class MainPageView(TemplateView):
         context['url'] = url
         context['url_linktext'] = url_linktext
         context['user_admin'] = users.is_current_user_admin()
+        context['user_login'] = users.get_current_user()
 
         # get greeting form in in_valid case (if needed)
         greeting_form = kwargs.get('sign_guestbook_form',
@@ -46,7 +47,8 @@ class MainPageView(TemplateView):
 
          # get switch guestbookdemo form in in_valid case (if needed)
         switch_guestbook_form = kwargs.get('switch_guestbook_form',
-                                           SwitchGuestbookForm(initial={'guestbook_name': guestbook_name}))
+                                           SwitchGuestbookForm(initial={
+                                               'guestbook_name': guestbook_name}))
         context['switch_guestbook_form'] = switch_guestbook_form
 
         return context
@@ -63,7 +65,7 @@ class MainPageView(TemplateView):
 
         if action == 'delete-message':
             # get greeting_id
-            greeting_id = self.request.GET.get('greeting_id',-1)
+            greeting_id = self.request.GET.get('greeting_id', -1)
 
             if greeting_id > 0:
                 # get guestbook_name
@@ -71,7 +73,8 @@ class MainPageView(TemplateView):
                                               AppConstants.get_default_guestbook_name())
                 Guestbook.delete_greeting_by_id(guestbook_name, greeting_id)
 
-                return HttpResponseRedirect('/?' + urllib.urlencode({'guestbook_name': guestbook_name}))
+                return HttpResponseRedirect('/?' +
+                                            urllib.urlencode({'guestbook_name': guestbook_name}))
 
         return super(MainPageView, self).get(request, *args, **kwargs)
 
@@ -119,3 +122,42 @@ class SwitchGuestbook(MainPageView, FormView):
     def form_invalid(self, form):
 
         return self.render_to_response(self.get_context_data(switch_guestbook_form=form))
+
+
+class EditGreeting(FormView):
+    template_name = "guestbook/edit_greeting.html"
+    form_class = EditGreetingForm
+    success_url = "/"
+
+    def get_context_data(self, **kwargs):
+        context = super(EditGreeting, self).get_context_data(**kwargs)
+
+        # get greeting_id
+        greeting_id = self.request.GET.get('greeting_id', -1)
+        if greeting_id > 0:
+            # get guestbook_name
+            guestbook_name = self.request.GET.get('guestbook_name',
+                                              AppConstants.get_default_guestbook_name())
+
+            greeting = Guestbook.get_greeting_by_id(guestbook_name, greeting_id)
+            if greeting:
+                if greeting.author:
+                    greeting_author = greeting.author
+                else:
+                    greeting_author = "Anonymous"
+                edit_form = EditGreetingForm(initial={'guestbook_name': guestbook_name,
+                                              'greeting_id': greeting_id,
+                                              'greeting_author': greeting_author,
+                                              'greeting_content': greeting.content})
+
+                context['form'] = edit_form
+
+        return context
+
+    def form_valid(self, form):
+        form.update_greeting()
+
+        return super(EditGreeting, self).form_valid(form)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
