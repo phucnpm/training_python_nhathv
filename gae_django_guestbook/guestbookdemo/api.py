@@ -2,6 +2,8 @@ __author__ = 'NhatHV'
 
 import json
 
+from google.appengine.datastore.datastore_query import Cursor
+
 from django.http import HttpResponse
 from django.views.generic.list import BaseListView
 
@@ -34,7 +36,10 @@ class APIListGreeting(JSONResponseMixin, BaseListView):
         cursor_str = self.request.GET.get('cursor', None)
 
         # get list of Greeting, next_cursor, is_more
-        greetings, next_cursor, is_more = self.get_queryset(guestbook_name, 20, cursor_str)
+        greetings, next_cursor, is_more, error = self.get_queryset(guestbook_name, 20, cursor_str)
+
+        if error:
+            return {'error':404}
 
         greetings_dict = [greeting._to_dict() for greeting in greetings]
 
@@ -49,8 +54,8 @@ class APIListGreeting(JSONResponseMixin, BaseListView):
     def get_queryset(self,
                      guestbook_name=AppConstants.get_default_guestbook_name(),
                      number_of_greeting=AppConstants.get_default_number_of_greeting(),
-                     start_cursor=None):
+                     curs_str=None):
 
-        greetings, nextcurs, more = Guestbook.get_page(guestbook_name, number_of_greeting, start_cursor)
+        greetings, nextcurs, more, error = Guestbook.get_page(guestbook_name, number_of_greeting, curs_str)
 
-        return greetings, nextcurs, more
+        return greetings, nextcurs, more, error
