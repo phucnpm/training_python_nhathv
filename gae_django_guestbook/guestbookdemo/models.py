@@ -34,7 +34,8 @@ class Greeting(ndb.Model):
 class Guestbook:
 
     @classmethod
-    def get_lastest_greeting(cls, guestbook_name, number_of_greeting):
+    def get_lastest_greeting(cls, guestbook_name,
+                             number_of_greeting=AppConstants.get_default_number_of_greeting()):
         greetings = memcache.get('%s:greetings' % guestbook_name)
         if greetings is None:
             guestbook_key = Greeting.get_key_from_name(guestbook_name)
