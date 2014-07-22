@@ -58,7 +58,7 @@ class Guestbook:
     @classmethod
     def delete_greeting_by_id(cls, guestbook_name, greeting_id):
         key = ndb.Key('guestbookdemo', guestbook_name, Greeting, int(greeting_id))
-        if key is not None:
+        if key:
             greeting = key.get()
 
             if greeting is not None:

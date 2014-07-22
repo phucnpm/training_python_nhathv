@@ -37,7 +37,7 @@ class MainPageView(TemplateView):
         context['greetings'] = greetings
         context['url'] = url
         context['url_linktext'] = url_linktext
-        context['user_admin'] = users.is_current_user_admin()
+        context['is_user_admin'] = users.is_current_user_admin()
 
         # get greeting form in in_valid case (if needed)
         greeting_form = kwargs.get('sign_guestbook_form',
