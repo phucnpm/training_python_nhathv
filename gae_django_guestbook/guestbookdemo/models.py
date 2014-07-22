@@ -61,7 +61,7 @@ class Guestbook:
         if key:
             greeting = key.get()
 
-            if greeting is not None:
+            if greeting:
                 key.delete()
 
                 # clear cache
