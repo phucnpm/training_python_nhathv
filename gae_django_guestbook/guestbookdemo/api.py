@@ -13,7 +13,7 @@ from django.views.generic.detail import DetailView
 
 from guestbookdemo.appconstants import AppConstants
 from guestbookdemo.models import Guestbook, Greeting
-from guestbookdemo.forms import GreetingForm, EditGreetingForm
+from guestbookdemo.forms import GreetingForm, APIEditGreetingForm
 
 
 class JSONResponseMixin(object):
@@ -95,7 +95,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
 
 class APIGreetingDetail(JSONResponseMixin, DetailView, FormView):
     object = Greeting
-    form_class = EditGreetingForm
+    form_class = APIEditGreetingForm
     success_url = "/"
 
     def render_to_response(self, context, **response_kwargs):
@@ -135,11 +135,12 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView):
 
     def form_valid(self, form):
         greeting_id = self.kwargs.get('greeting_id', -1)
-        logging.warning("APIGreetingDetail - form_valid - greeting_id = %s" % greeting_id)
-        if form.update_greeting():
+        guestbook_name = self.kwargs.get('guestbook_name',
+                                         AppConstants.get_default_guestbook_name())
+        if form.update_greeting(guestbook_name, greeting_id):
             return HttpResponse(status=204)
         else:
-            return HttpResponse(status=204)
+            return HttpResponse(status=404)
 
     def form_invalid(self, form):
         logging.warning("APIGreetingDetail - form_invalid")
