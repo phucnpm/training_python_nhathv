@@ -21,6 +21,7 @@ class Greeting(ndb.Model):
 
     def _to_dict(self, include=None, exclude=None):
         dict = {
+            "id":self.key.id(),
             "content":self.content,
             "date":self.date.strftime("%Y-%m-%d %H:%M +0000"),
             "updated_by":self.updated_by
@@ -34,7 +35,6 @@ class Greeting(ndb.Model):
             dict['updated_date'] = self.updated_date.strftime("%Y-%m-%d %H:%M +0000")
         else:
             dict['updated_date'] = None
-
 
         return dict
 
@@ -102,27 +102,45 @@ class Guestbook:
 
     @classmethod
     def delete_greeting_by_id(cls, guestbook_name, greeting_id):
-        key = ndb.Key('guestbookdemo', guestbook_name, Greeting, int(greeting_id))
-        if key:
-            greeting = key.get()
+        try:
+            id = int(greeting_id)
+        except ValueError:
+            return None
 
-            if greeting:
-                key.delete()
+        if int(id) > 0:
+            key = ndb.Key('guestbookdemo', guestbook_name, Greeting, int(id))
+            if key:
+                greeting = key.get()
 
-                # clear cache
-                memcache.delete('%s:greetings' % guestbook_name)
-                return True
+                if greeting:
+                    key.delete()
+
+                    # clear cache
+                    memcache.delete('%s:greetings' % guestbook_name)
+                    return True
+                else:
+                    return False
             else:
-                return False
+                return None
+        else:
+            return False
 
     @classmethod
     def get_greeting_by_id(cls, guestbook_name, greeting_id):
-        key = ndb.Key('guestbookdemo', guestbook_name,
-                      Greeting, int(greeting_id))
-        if key:
-            greeting = key.get()
-            if greeting:
-                return greeting
+        try:
+            id = int(greeting_id)
+        except ValueError:
+            return None
+
+        if int(id) > 0:
+            key = ndb.Key('guestbookdemo', guestbook_name,
+                          Greeting, int(id))
+            if key:
+                greeting = key.get()
+                if greeting:
+                    return greeting
+                else:
+                    return None
             else:
                 return None
         else:
