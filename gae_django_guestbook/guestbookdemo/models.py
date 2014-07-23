@@ -102,7 +102,7 @@ class Guestbook:
         try:
             id = int(greeting_id)
         except ValueError:
-            return None
+            return False
 
         if int(id) > 0:
             key = ndb.Key('guestbookdemo', guestbook_name, Greeting, int(id))
@@ -118,7 +118,7 @@ class Guestbook:
                 else:
                     return False
             else:
-                return None
+                return False
         else:
             return False
 

@@ -10,6 +10,7 @@ from google.appengine.api import datastore_errors
 from django.http import HttpResponse
 from django.views.generic import FormView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import DeletionMixin
 
 from guestbookdemo.appconstants import AppConstants
 from guestbookdemo.models import Guestbook, Greeting
@@ -93,14 +94,16 @@ class APIListGreeting(JSONResponseMixin, FormView):
         return HttpResponse(status=404)
 
 
-class APIGreetingDetail(JSONResponseMixin, DetailView, FormView):
+class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
     object = Greeting
     form_class = APIEditGreetingForm
     success_url = "/"
 
+# Using method render_to_response for action get greeting
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
 
+# Using method get_object for action get greeting
     def get_object(self, queryset=None):
         guestbook_name = self.kwargs.get('guestbook_name',
                                          AppConstants.get_default_guestbook_name())
@@ -112,6 +115,7 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView):
         else:
             return None
 
+# Using method get for action get greeting
     def get_context_data(self, **kwargs):
         if self.object:
             data = self.object._to_dict()
@@ -120,11 +124,17 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView):
 
         return data
 
+# Using method get for action get greeting
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
+# Dont use method Post
+    def post(self, request, *args, **kwargs):
+        return HttpResponse(status=404)
+
+# Using method PUT for action update greeting
     def put(self, *args, **kwargs):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
@@ -133,6 +143,17 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView):
         else:
             return self.form_invalid(form)
 
+# Using method delete for action delete greeting
+    def delete(self, request, *args, **kwargs):
+        greeting_id = self.kwargs.get('greeting_id', -1)
+        guestbook_name = self.kwargs.get('guestbook_name',
+                                         AppConstants.get_default_guestbook_name())
+        if Guestbook.delete_greeting_by_id(guestbook_name, greeting_id):
+            return HttpResponse(status=204)
+        else:
+            return HttpResponse(status=404)
+
+# Using method form_valid for action update greeting
     def form_valid(self, form):
         greeting_id = self.kwargs.get('greeting_id', -1)
         guestbook_name = self.kwargs.get('guestbook_name',
@@ -142,6 +163,6 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView):
         else:
             return HttpResponse(status=404)
 
+# Using method form_invalid for action update greeting
     def form_invalid(self, form):
-        logging.warning("APIGreetingDetail - form_invalid")
         return HttpResponse(status=404)
