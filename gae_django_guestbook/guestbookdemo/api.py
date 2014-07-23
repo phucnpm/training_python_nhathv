@@ -1,13 +1,16 @@
-from google.appengine.api import datastore_errors
+from guestbookdemo.forms import GreetingForm
 
 __author__ = 'NhatHV'
 
 import json
 
+from google.appengine.api import users
+from google.appengine.api.labs import taskqueue
 from google.appengine.datastore.datastore_query import Cursor
 
 from django.http import HttpResponse
-from django.views.generic.list import BaseListView
+from django.views.generic import FormView
+from google.appengine.api import datastore_errors
 from django.views.generic.detail import DetailView
 
 from guestbookdemo.appconstants import AppConstants
@@ -28,7 +31,9 @@ class JSONResponseMixin(object):
         return json.dumps(context)
 
 
-class APIListGreeting(JSONResponseMixin, BaseListView):
+class APIListGreeting(JSONResponseMixin, FormView):
+    form_class = GreetingForm
+    success_url = '/'
 
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
@@ -67,6 +72,26 @@ class APIListGreeting(JSONResponseMixin, BaseListView):
         greetings, nextcurs, more = Guestbook.get_page(guestbook_name, number_of_greeting, curs_str)
 
         return greetings, nextcurs, more
+
+    def form_valid(self, form):
+        new_greeting = form.save_greeting()
+        if new_greeting:
+            if users.get_current_user():
+                user_email = users.get_current_user().email()
+            else:
+                user_email = "Anonymous"
+
+            taskqueue.add(url='/send_email/',
+                          method='GET',
+                          params={'user_email': user_email})
+
+            return HttpResponse(status=204)
+        else:
+            return HttpResponse(status=404)
+
+    def form_invalid(self, form):
+
+        return HttpResponse(status=404)
 
 
 class APIGreetingDetail(JSONResponseMixin, DetailView):
