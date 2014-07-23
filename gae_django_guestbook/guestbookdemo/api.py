@@ -1,3 +1,5 @@
+from google.appengine.api import datastore_errors
+
 __author__ = 'NhatHV'
 
 import json
@@ -31,16 +33,21 @@ class APIListGreeting(JSONResponseMixin, BaseListView):
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
 
+    def get(self, request, *args, **kwargs):
+        try:
+            Cursor(urlsafe=self.request.GET.get('cursor'))
+        except datastore_errors.BadValueError:
+            return HttpResponse(status=404)
+
+        return super(APIListGreeting, self).get(self, request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         guestbook_name = self.kwargs.get('guestbook_name',
                                          AppConstants.get_default_guestbook_name())
         cursor_str = self.request.GET.get('cursor', None)
 
         # get list of Greeting, next_cursor, is_more
-        greetings, next_cursor, is_more, error = self.get_queryset(guestbook_name, 20, cursor_str)
-
-        if error:
-            return {'error':404}
+        greetings, next_cursor, is_more = self.get_queryset(guestbook_name, 20, cursor_str)
 
         greetings_dict = [greeting._to_dict() for greeting in greetings]
 
@@ -57,9 +64,9 @@ class APIListGreeting(JSONResponseMixin, BaseListView):
                      number_of_greeting=AppConstants.get_default_number_of_greeting(),
                      curs_str=None):
 
-        greetings, nextcurs, more, error = Guestbook.get_page(guestbook_name, number_of_greeting, curs_str)
+        greetings, nextcurs, more = Guestbook.get_page(guestbook_name, number_of_greeting, curs_str)
 
-        return greetings, nextcurs, more, error
+        return greetings, nextcurs, more
 
 
 class APIGreetingDetail(JSONResponseMixin, DetailView):
@@ -83,6 +90,6 @@ class APIGreetingDetail(JSONResponseMixin, DetailView):
         if self.object:
             data = self.object._to_dict()
         else:
-            data = {"error":404}
+            data = {"error":"wrong greeting id"}
 
         return data

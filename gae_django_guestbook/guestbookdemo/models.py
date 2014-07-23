@@ -63,20 +63,17 @@ class Guestbook:
             items = None
             nextcurs = None
             more = None
-            error = None
         try:
             guestbook_key = Greeting.get_key_from_name(guestbook_name)
             curs = Cursor(urlsafe=curs_str)
             items, nextcurs, more = Greeting.query(
                 ancestor=guestbook_key).order(-Greeting.date)\
                 .fetch_page(pagesize, start_cursor=curs)
-            error = None
         except:
             items = None
             nextcurs = None
             more = None
-            error = 404
-        return items, nextcurs, more, error
+        return items, nextcurs, more
 
     @classmethod
     def put_greeting_with_data(cls, guestbook_name, greeting_author, greeting_content):
