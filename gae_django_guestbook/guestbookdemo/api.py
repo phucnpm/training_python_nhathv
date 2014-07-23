@@ -125,15 +125,22 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView):
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
-    def post(self, request, *args, **kwargs):
-        logging.warning("APIGreetingDetail - POST")
-        super(APIGreetingDetail, self).post(self, request, *args, **kwargs)
+    def put(self, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
     def form_valid(self, form):
+        greeting_id = self.kwargs.get('greeting_id', -1)
+        logging.warning("APIGreetingDetail - form_valid - greeting_id = %s" % greeting_id)
         if form.update_greeting():
             return HttpResponse(status=204)
         else:
             return HttpResponse(status=204)
 
     def form_invalid(self, form):
+        logging.warning("APIGreetingDetail - form_invalid")
         return HttpResponse(status=404)
