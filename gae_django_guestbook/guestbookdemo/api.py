@@ -1,6 +1,6 @@
 __author__ = 'NhatHV'
 
-import json
+import json, logging
 
 from google.appengine.api import users
 from google.appengine.api.labs import taskqueue
@@ -13,7 +13,7 @@ from django.views.generic.detail import DetailView
 
 from guestbookdemo.appconstants import AppConstants
 from guestbookdemo.models import Guestbook, Greeting
-from guestbookdemo.forms import GreetingForm
+from guestbookdemo.forms import GreetingForm, EditGreetingForm
 
 
 class JSONResponseMixin(object):
@@ -93,8 +93,10 @@ class APIListGreeting(JSONResponseMixin, FormView):
         return HttpResponse(status=404)
 
 
-class APIGreetingDetail(JSONResponseMixin, DetailView):
+class APIGreetingDetail(JSONResponseMixin, DetailView, FormView):
     object = Greeting
+    form_class = EditGreetingForm
+    success_url = "/"
 
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
@@ -117,3 +119,21 @@ class APIGreetingDetail(JSONResponseMixin, DetailView):
             data = {"error":"wrong greeting id"}
 
         return data
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        logging.warning("APIGreetingDetail - POST")
+        super(APIGreetingDetail, self).post(self, request, *args, **kwargs)
+
+    def form_valid(self, form):
+        if form.update_greeting():
+            return HttpResponse(status=204)
+        else:
+            return HttpResponse(status=204)
+
+    def form_invalid(self, form):
+        return HttpResponse(status=404)
