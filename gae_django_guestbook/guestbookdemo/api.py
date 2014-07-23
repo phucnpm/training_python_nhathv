@@ -1,5 +1,3 @@
-from guestbookdemo.forms import GreetingForm
-
 __author__ = 'NhatHV'
 
 import json
@@ -7,14 +5,15 @@ import json
 from google.appengine.api import users
 from google.appengine.api.labs import taskqueue
 from google.appengine.datastore.datastore_query import Cursor
+from google.appengine.api import datastore_errors
 
 from django.http import HttpResponse
 from django.views.generic import FormView
-from google.appengine.api import datastore_errors
 from django.views.generic.detail import DetailView
 
 from guestbookdemo.appconstants import AppConstants
 from guestbookdemo.models import Guestbook, Greeting
+from guestbookdemo.forms import GreetingForm
 
 
 class JSONResponseMixin(object):
