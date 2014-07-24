@@ -35,7 +35,7 @@ class TestModelGreeting:
             'updated_date' : "2014-07-14 05:55 +0000"
         }
 
-        assert test_dict == greeting._to_dict()
+        assert test_dict == greeting.to_dict()
 
     def test_to_dict_two(self):
         greeting = Greeting()
@@ -56,4 +56,4 @@ class TestModelGreeting:
             'updated_date' : "2014-07-14 05:55 +0000"
         }
 
-        assert test_dict != greeting._to_dict()
+        assert test_dict != greeting.to_dict()
