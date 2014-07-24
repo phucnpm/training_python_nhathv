@@ -232,9 +232,6 @@ class TestModelGuestbook(TestBaseClass):
                 and greeting.updated_by == "updated by tests"
 
     def test_update_greeting_by_id_with_wrong_id(self):
-        greeting_tmp = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
         greeting = Guestbook.update_greeting_by_id(AppConstants.get_default_guestbook_name(),
                                                    123456789,
                                                    "content update",
