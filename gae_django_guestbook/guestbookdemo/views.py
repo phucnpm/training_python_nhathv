@@ -134,23 +134,22 @@ class EditGreeting(FormView):
 
         # get greeting_id
         greeting_id = self.request.GET.get('greeting_id', -1)
-        if greeting_id > 0:
-            # get guestbook_name
-            guestbook_name = self.request.GET.get('guestbook_name',
+        # get guestbook_name
+        guestbook_name = self.request.GET.get('guestbook_name',
                                               AppConstants.get_default_guestbook_name())
 
-            greeting = Guestbook.get_greeting_by_id(guestbook_name, greeting_id)
-            if greeting:
-                if greeting.author:
-                    greeting_author = greeting.author
-                else:
-                    greeting_author = "Anonymous"
-                edit_form = EditGreetingForm(initial={'guestbook_name': guestbook_name,
+        greeting = Guestbook.get_greeting_by_id(guestbook_name, greeting_id)
+        if greeting:
+            if greeting.author:
+                greeting_author = greeting.author
+            else:
+                greeting_author = "Anonymous"
+            edit_form = EditGreetingForm(initial={'guestbook_name': guestbook_name,
                                               'greeting_id': greeting_id,
                                               'greeting_author': greeting_author,
                                               'greeting_content': greeting.content})
 
-                context['form'] = edit_form
+            context['form'] = edit_form
 
         return context
 

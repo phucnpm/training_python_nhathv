@@ -1,5 +1,7 @@
 import logging, datetime
 
+from google.appengine.datastore.datastore_query import Cursor
+
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
 
@@ -17,11 +19,31 @@ class Greeting(ndb.Model):
     def get_key_from_name(cls, guestbook_name=None):
         return ndb.Key('guestbookdemo', guestbook_name or AppConstants.get_default_guestbook_name())
 
+    def to_dict(self, include=None, exclude=None):
+        dict = {
+            "id":self.key.id(),
+            "content":self.content,
+            "date":self.date.strftime("%Y-%m-%d %H:%M +0000"),
+            "updated_by":self.updated_by
+        }
+        if self.author:
+            dict['author'] = self.author
+        else:
+            dict['author'] = "Anonymous"
+
+        if self.updated_date:
+            dict['updated_date'] = self.updated_date.strftime("%Y-%m-%d %H:%M +0000")
+        else:
+            dict['updated_date'] = None
+
+        return dict
+
 
 class Guestbook:
 
     @classmethod
-    def get_lastest_greeting(cls, guestbook_name, number_of_greeting):
+    def get_lastest_greeting(cls, guestbook_name,
+                             number_of_greeting=AppConstants.get_default_number_of_greeting()):
         greetings = memcache.get('%s:greetings' % guestbook_name)
         if greetings is None:
             guestbook_key = Greeting.get_key_from_name(guestbook_name)
@@ -34,6 +56,24 @@ class Guestbook:
                 logging.error('Memcache set failed.')
 
         return greetings
+
+    @classmethod
+    def get_page(cls, guestbook_name, pagesize, curs_str=None):
+        if pagesize <= 0:
+            items = None
+            nextcurs = None
+            more = None
+        try:
+            guestbook_key = Greeting.get_key_from_name(guestbook_name)
+            curs = Cursor(urlsafe=curs_str)
+            items, nextcurs, more = Greeting.query(
+                ancestor=guestbook_key).order(-Greeting.date)\
+                .fetch_page(pagesize, start_cursor=curs)
+        except:
+            items = None
+            nextcurs = None
+            more = None
+        return items, nextcurs, more
 
     @classmethod
     def put_greeting_with_data(cls, guestbook_name, greeting_author, greeting_content):
@@ -59,27 +99,45 @@ class Guestbook:
 
     @classmethod
     def delete_greeting_by_id(cls, guestbook_name, greeting_id):
-        key = ndb.Key('guestbookdemo', guestbook_name, Greeting, int(greeting_id))
-        if key:
-            greeting = key.get()
+        try:
+            id = int(greeting_id)
+        except ValueError:
+            return False
 
-            if greeting:
-                key.delete()
+        if int(id) > 0:
+            key = ndb.Key('guestbookdemo', guestbook_name, Greeting, int(id))
+            if key:
+                greeting = key.get()
 
-                # clear cache
-                memcache.delete('%s:greetings' % guestbook_name)
-                return True
+                if greeting:
+                    key.delete()
+
+                    # clear cache
+                    memcache.delete('%s:greetings' % guestbook_name)
+                    return True
+                else:
+                    return False
             else:
                 return False
+        else:
+            return False
 
     @classmethod
     def get_greeting_by_id(cls, guestbook_name, greeting_id):
-        key = ndb.Key('guestbookdemo', guestbook_name,
-                      Greeting, int(greeting_id))
-        if key:
-            greeting = key.get()
-            if greeting:
-                return greeting
+        try:
+            id = int(greeting_id)
+        except ValueError:
+            return None
+
+        if int(id) > 0:
+            key = ndb.Key('guestbookdemo', guestbook_name,
+                          Greeting, int(id))
+            if key:
+                greeting = key.get()
+                if greeting:
+                    return greeting
+                else:
+                    return None
             else:
                 return None
         else:
