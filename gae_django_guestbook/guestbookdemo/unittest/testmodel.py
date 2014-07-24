@@ -214,3 +214,53 @@ class TestModelGuestbook:
                                                 123456789)
 
         assert greeting is None
+
+    def test_delete_greeting_by_id(self):
+        greeting_tmp = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
+                                                    "author",
+                                                    "content")
+
+        Guestbook.delete_greeting_by_id(AppConstants.get_default_guestbook_name(),
+                                        greeting_tmp.key.id())
+
+        greeting = Guestbook.get_greeting_by_id(AppConstants.get_default_guestbook_name(),
+                                                greeting_tmp.key.id())
+
+        assert greeting is None
+
+    def test_delete_greeting_by_id_with_wrong_id(self):
+        greeting_tmp = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
+                                                    "author",
+                                                    "content")
+
+        Guestbook.delete_greeting_by_id(AppConstants.get_default_guestbook_name(),
+                                        123456789)
+
+        greeting = Guestbook.get_greeting_by_id(AppConstants.get_default_guestbook_name(),
+                                                greeting_tmp.key.id())
+
+        assert greeting is not None and greeting == greeting_tmp
+
+    def test_update_greeting_by_id(self):
+        greeting_tmp = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
+                                                    "author",
+                                                    "content")
+        greeting = Guestbook.update_greeting_by_id(AppConstants.get_default_guestbook_name(),
+                                                   greeting_tmp.key.id(),
+                                                   "content update",
+                                                   "updated by unittest")
+
+        assert greeting is not None \
+                and greeting.content == "content update" \
+                and greeting.updated_by == "updated by unittest"
+
+    def test_update_greeting_by_id_with_wrong_id(self):
+        greeting_tmp = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
+                                                    "author",
+                                                    "content")
+        greeting = Guestbook.update_greeting_by_id(AppConstants.get_default_guestbook_name(),
+                                                   123456789,
+                                                   "content update",
+                                                   "updated by unittest")
+
+        assert greeting is None
