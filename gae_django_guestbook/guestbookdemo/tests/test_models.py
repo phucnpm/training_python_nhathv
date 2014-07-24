@@ -3,11 +3,34 @@ __author__ = 'NhatHV'
 from datetime import datetime
 
 from google.appengine.ext import ndb
+from google.appengine.ext import testbed
 
 from guestbookdemo.models import Greeting, Guestbook
 from guestbookdemo.appconstants import AppConstants
 
-class TestModelGreeting:
+class TestBaseClass():
+
+    guestbook_name = "default_guestbook"
+    myGuestbook = Guestbook()
+
+    def setup_method(self, method):
+        self.testbed = testbed.Testbed()
+        # Then activate the testbed, which prepares the service stubs for use.
+        self.testbed.activate()
+        # Next, declare which service stubs you want to use.
+        self.testbed.init_datastore_v3_stub()
+        self.testbed.init_memcache_stub()
+        self.testbed.init_user_stub()
+        # create test DB
+        for i in range(0, 20, 1):
+            greeting = self.myGuestbook.put_greeting_with_data(self.guestbook_name,
+                                                    "author",
+                                                    "content")
+
+    def teardown_method(self, method):
+        self.testbed.deactivate()
+
+class TestModelGreeting(TestBaseClass):
 
     def test_get_key_from_name_with_right_app_name(self):
         x = ndb.Key('guestbookdemo',"1")
@@ -81,7 +104,7 @@ class TestModelGreeting:
         assert test_dict != greeting.to_dict()
 
 
-class TestModelGuestbook:
+class TestModelGuestbook(TestBaseClass):
 
     def test_put_greeting_with_data(self):
         greeting = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
@@ -91,39 +114,24 @@ class TestModelGuestbook:
         assert greeting is not None and greeting.author == "author"
 
     def test_get_lastest_greeting_with_defined_guestbook_name(self):
-        greeting = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
         greetings = Guestbook.get_lastest_greeting(AppConstants.get_default_guestbook_name(),
                                                    10)
 
-        assert greetings is not None and greetings != []
+        assert greetings is not None and len(greetings) == 10
 
     def test_get_lastest_greeting_with_undefined_guestbook_name(self):
-        greeting = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
         greetings = Guestbook.get_lastest_greeting("undefine_guesbook_name",
                                                    10)
 
-        assert greetings is not None and greetings == []
+        assert greetings is not None and len(greetings) == 0
 
     def test_get_page_with_no_cursor(self):
-        greeting = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
         items, nextcurs, more = Guestbook.get_page(AppConstants.get_default_guestbook_name(),
                                                    10,
                                                    None)
-        assert items is not None and nextcurs is not None and more is False
+        assert items is not None and nextcurs is not None and more is True
 
     def test_get_page_with_right_cursor(self):
-        greeting = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
-        greeting_2 = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
         items_tmp, nextcurs_tmp, more_tmp = Guestbook.get_page(AppConstants.get_default_guestbook_name(),
                                                    1,
                                                    None)
@@ -132,65 +140,38 @@ class TestModelGuestbook:
                                                    10,
                                                    nextcurs_tmp.urlsafe())
 
-        assert items is not None and nextcurs is not None and more is False
+        assert items is not None and nextcurs is not None and more is True
 
     def test_get_page_with_wrong_cursor(self):
-        greeting = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
         items, nextcurs, more = Guestbook.get_page(AppConstants.get_default_guestbook_name(),
                                                    10,
                                                    "wrong_cursor")
         assert items is None and nextcurs is None and more is None
 
     def test_get_page_with_right_page_size(self):
-        greeting = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
-        greeting_2 = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
         items, nextcurs, more = Guestbook.get_page(AppConstants.get_default_guestbook_name(),
-                                                   10,
+                                                   3,
                                                    None)
-        assert items is not None and len(items) == 2
+        assert items is not None and len(items) == 3
 
     def test_get_page_with_wrong_page_size(self):
-        greeting = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
-        greeting_2 = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
         items, nextcurs, more = Guestbook.get_page(AppConstants.get_default_guestbook_name(),
                                                    10,
                                                    None)
-        assert items is not None and len(items) != 3
+        assert items is not None and len(items) != 20
 
     def test_get_lastest_greeting_with_number_over_size(self):
-        for i in range(0, 3, 1):
-            greeting = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
         greetings = Guestbook.get_lastest_greeting(AppConstants.get_default_guestbook_name(),
-                                                   10)
-        assert len(greetings) == 3
+                                                   30)
+        assert len(greetings) == 20
 
     def test_get_lastest_greeting_with_number_in_size(self):
-        for i in range(0, 20, 1):
-            greeting = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
         greetings = Guestbook.get_lastest_greeting(AppConstants.get_default_guestbook_name(),
                                                    10)
         assert len(greetings) == 10
 
     def test_get_lastest_greeting_with_wrong_guestbook_name(self):
-        for i in range(0, 20, 1):
-            greeting = Guestbook.put_greeting_with_data("Undefined_guestbook_name",
-                                                    "author",
-                                                    "content")
-        greetings = Guestbook.get_lastest_greeting(AppConstants.get_default_guestbook_name(),
+        greetings = Guestbook.get_lastest_greeting("undefined_guestbook_name",
                                                    10)
         assert len(greetings) == 0
 
@@ -206,10 +187,6 @@ class TestModelGuestbook:
         assert greeting is not None and greeting == greeting_tmp
 
     def test_get_greeting_by_id_with_wrong_greeting_id(self):
-        greeting_tmp = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
-                                                    "author",
-                                                    "content")
-
         greeting = Guestbook.get_greeting_by_id(AppConstants.get_default_guestbook_name(),
                                                 123456789)
 
@@ -248,11 +225,11 @@ class TestModelGuestbook:
         greeting = Guestbook.update_greeting_by_id(AppConstants.get_default_guestbook_name(),
                                                    greeting_tmp.key.id(),
                                                    "content update",
-                                                   "updated by unittest")
+                                                   "updated by tests")
 
         assert greeting is not None \
                 and greeting.content == "content update" \
-                and greeting.updated_by == "updated by unittest"
+                and greeting.updated_by == "updated by tests"
 
     def test_update_greeting_by_id_with_wrong_id(self):
         greeting_tmp = Guestbook.put_greeting_with_data(AppConstants.get_default_guestbook_name(),
@@ -261,6 +238,6 @@ class TestModelGuestbook:
         greeting = Guestbook.update_greeting_by_id(AppConstants.get_default_guestbook_name(),
                                                    123456789,
                                                    "content update",
-                                                   "updated by unittest")
+                                                   "updated by tests")
 
         assert greeting is None
