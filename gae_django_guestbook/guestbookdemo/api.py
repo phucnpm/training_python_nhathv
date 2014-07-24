@@ -19,6 +19,9 @@ from guestbookdemo.forms import GreetingForm, APIEditGreetingForm
 
 class JSONResponseMixin(object):
 
+    def render_to_response(self, context, **response_kwargs):
+        return self.render_to_json_response(context, **response_kwargs)
+
     def render_to_json_response(self, context):
         return self.get_json_response(self.convert_context_to_json(context))
 
@@ -35,9 +38,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
     form_class = GreetingForm
     success_url = '/'
 
-    def render_to_response(self, context, **response_kwargs):
-        return self.render_to_json_response(context, **response_kwargs)
-
+# Using method GET to handle request get list Greeting
     def get(self, request, *args, **kwargs):
         try:
             Cursor(urlsafe=self.request.GET.get('cursor'))
@@ -46,6 +47,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
 
         return super(APIListGreeting, self).get(self, request, *args, **kwargs)
 
+# Get context data for API get list Greeting
     def get_context_data(self, **kwargs):
         guestbook_name = self.kwargs.get('guestbook_name',
                                          AppConstants.get_default_guestbook_name())
@@ -54,7 +56,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
         # get list of Greeting, next_cursor, is_more
         greetings, next_cursor, is_more = self.get_queryset(guestbook_name, 20, cursor_str)
 
-        greetings_dict = [greeting._to_dict() for greeting in greetings]
+        greetings_dict = [greeting.to_dict() for greeting in greetings]
 
         data = {}
         data['greetings'] = greetings_dict
@@ -64,6 +66,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
 
         return data
 
+# Get queryset for API get list data
     def get_queryset(self,
                      guestbook_name=AppConstants.get_default_guestbook_name(),
                      number_of_greeting=AppConstants.get_default_number_of_greeting(),
@@ -73,6 +76,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
 
         return greetings, nextcurs, more
 
+# Using method form_valid for API create Greeting
     def form_valid(self, form):
         new_greeting = form.save_greeting()
         if new_greeting:
@@ -89,6 +93,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
         else:
             return HttpResponse(status=404)
 
+# Using method form_invalid for API create Greeting
     def form_invalid(self, form):
 
         return HttpResponse(status=404)
@@ -98,10 +103,6 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
     object = Greeting
     form_class = APIEditGreetingForm
     success_url = "/"
-
-# Using method render_to_response for action get greeting
-    def render_to_response(self, context, **response_kwargs):
-        return self.render_to_json_response(context, **response_kwargs)
 
 # Using method get_object for action get greeting
     def get_object(self, queryset=None):
@@ -118,7 +119,7 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
 # Using method get for action get greeting
     def get_context_data(self, **kwargs):
         if self.object:
-            data = self.object._to_dict()
+            data = self.object.to_dict()
         else:
             data = {"error":"wrong greeting id"}
 

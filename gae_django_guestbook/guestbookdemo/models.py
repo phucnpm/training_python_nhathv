@@ -19,7 +19,7 @@ class Greeting(ndb.Model):
     def get_key_from_name(cls, guestbook_name=None):
         return ndb.Key('guestbookdemo', guestbook_name or AppConstants.get_default_guestbook_name())
 
-    def _to_dict(self, include=None, exclude=None):
+    def to_dict(self, include=None, exclude=None):
         dict = {
             "id":self.key.id(),
             "content":self.content,
