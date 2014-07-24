@@ -38,7 +38,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
     form_class = GreetingForm
     success_url = '/'
 
-# Using method GET to handle request get list Greeting
+    # Using method GET to handle request get list Greeting
     def get(self, request, *args, **kwargs):
         try:
             Cursor(urlsafe=self.request.GET.get('cursor'))
@@ -47,7 +47,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
 
         return super(APIListGreeting, self).get(self, request, *args, **kwargs)
 
-# Get context data for API get list Greeting
+    # Get context data for API get list Greeting
     def get_context_data(self, **kwargs):
         guestbook_name = self.kwargs.get('guestbook_name',
                                          AppConstants.get_default_guestbook_name())
@@ -66,7 +66,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
 
         return data
 
-# Get queryset for API get list data
+    # Get queryset for API get list Greeting
     def get_queryset(self,
                      guestbook_name=AppConstants.get_default_guestbook_name(),
                      number_of_greeting=AppConstants.get_default_number_of_greeting(),
@@ -76,7 +76,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
 
         return greetings, nextcurs, more
 
-# Using method form_valid for API create Greeting
+    # Using method form_valid for API create Greeting
     def form_valid(self, form):
         new_greeting = form.save_greeting()
         if new_greeting:
@@ -93,7 +93,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
         else:
             return HttpResponse(status=404)
 
-# Using method form_invalid for API create Greeting
+    # Using method form_invalid for API create Greeting
     def form_invalid(self, form):
 
         return HttpResponse(status=404)
@@ -104,7 +104,7 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
     form_class = APIEditGreetingForm
     success_url = "/"
 
-# Using method get_object for action get greeting
+    # Using method get_object for action get greeting
     def get_object(self, queryset=None):
         guestbook_name = self.kwargs.get('guestbook_name',
                                          AppConstants.get_default_guestbook_name())
@@ -116,7 +116,7 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
         else:
             return None
 
-# Using method get for action get greeting
+    # Using method get for action get greeting
     def get_context_data(self, **kwargs):
         if self.object:
             data = self.object.to_dict()
@@ -125,17 +125,11 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
 
         return data
 
-# Using method get for action get greeting
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
-
-# Dont use method Post
+    # Dont use method Post
     def post(self, request, *args, **kwargs):
         return HttpResponse(status=404)
 
-# Using method PUT for action update greeting
+    # Using method PUT for action update greeting
     def put(self, *args, **kwargs):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
@@ -144,17 +138,7 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
         else:
             return self.form_invalid(form)
 
-# Using method delete for action delete greeting
-    def delete(self, request, *args, **kwargs):
-        greeting_id = self.kwargs.get('greeting_id', -1)
-        guestbook_name = self.kwargs.get('guestbook_name',
-                                         AppConstants.get_default_guestbook_name())
-        if Guestbook.delete_greeting_by_id(guestbook_name, greeting_id):
-            return HttpResponse(status=204)
-        else:
-            return HttpResponse(status=404)
-
-# Using method form_valid for action update greeting
+    # Using method form_valid for action update greeting
     def form_valid(self, form):
         greeting_id = self.kwargs.get('greeting_id', -1)
         guestbook_name = self.kwargs.get('guestbook_name',
@@ -164,6 +148,16 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
         else:
             return HttpResponse(status=404)
 
-# Using method form_invalid for action update greeting
+    # Using method form_invalid for action update greeting
     def form_invalid(self, form):
         return HttpResponse(status=404)
+
+    # Using method delete for action delete greeting
+    def delete(self, request, *args, **kwargs):
+        greeting_id = self.kwargs.get('greeting_id', -1)
+        guestbook_name = self.kwargs.get('guestbook_name',
+                                         AppConstants.get_default_guestbook_name())
+        if Guestbook.delete_greeting_by_id(guestbook_name, greeting_id):
+            return HttpResponse(status=204)
+        else:
+            return HttpResponse(status=404)
