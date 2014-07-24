@@ -20,10 +20,7 @@ from guestbookdemo.forms import GreetingForm, APIEditGreetingForm
 class JSONResponseMixin(object):
 
     def render_to_response(self, context, **response_kwargs):
-        return self.render_to_json_response(context, **response_kwargs)
-
-    def render_to_json_response(self, context):
-        return self.get_json_response(self.convert_context_to_json(context))
+        return self.get_json_response(self.convert_context_to_json(context), **response_kwargs)
 
     def get_json_response(self, content, **httpresponse_kwargs):
         return HttpResponse(content,
