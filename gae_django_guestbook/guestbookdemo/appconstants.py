@@ -6,6 +6,7 @@ DEFAULT_NUMBER_OF_GREETING = 10
 DEFAULT_SENDER_EMAIL = '<Default sender> nhathv.dev@gmail.com'
 DEFAULT_RECEIVER_EMAIL = '<Default receiver> nhathv.dev@gmail.com'
 
+
 class AppConstants:
 
     @classmethod

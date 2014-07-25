@@ -1,7 +1,6 @@
 __author__ = 'NhatHV'
-import logging
 
-from google.appengine.api import users, mail
+from google.appengine.api import mail
 
 from django.views.generic import View
 from django.http import HttpResponse

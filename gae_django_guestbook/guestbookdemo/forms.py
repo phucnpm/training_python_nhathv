@@ -22,7 +22,9 @@ class GreetingForm(forms.Form):
             greeting_author = None
         greeting_content = self.cleaned_data['content']
 
-        new_greeting = Guestbook.put_greeting_with_data(guestbook_name, greeting_author, greeting_content)
+        new_greeting = Guestbook.put_greeting_with_data(guestbook_name,
+                                                        greeting_author,
+                                                        greeting_content)
 
         return new_greeting
 
@@ -39,7 +41,7 @@ class EditGreetingForm(forms.Form):
                                   required=False,)
     greeting_author = forms.CharField(label="Author",
                                       required=False,
-                                      widget=forms.TextInput(attrs={'readonly':'readonly'}))
+                                      widget=forms.TextInput(attrs={'readonly': 'readonly'}))
     greeting_content = forms.CharField(label="",
                                        required=True,
                                        max_length=10,
@@ -65,7 +67,7 @@ class EditGreetingForm(forms.Form):
 class APIEditGreetingForm(forms.Form):
     greeting_author = forms.CharField(label="Author",
                                       required=False,
-                                      widget=forms.TextInput(attrs={'readonly':'readonly'}))
+                                      widget=forms.TextInput(attrs={'readonly': 'readonly'}))
     greeting_content = forms.CharField(label="",
                                        required=True,
                                        max_length=10,
