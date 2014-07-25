@@ -7,6 +7,7 @@ from google.appengine.ext import testbed
 
 from guestbookdemo.models import Greeting, Guestbook
 
+
 class TestBaseClass():
 
     guestbook_name = "default_guestbook"
@@ -22,21 +23,22 @@ class TestBaseClass():
         self.testbed.init_user_stub()
         # create test DB
         for i in range(0, 20, 1):
-            greeting = self.myGuestbook.put_greeting_with_data(self.guestbook_name,
+            self.myGuestbook.put_greeting_with_data(self.guestbook_name,
                                                     "author",
                                                     "content")
 
     def teardown_method(self, method):
         self.testbed.deactivate()
 
+
 class TestModelGreeting(TestBaseClass):
 
     def test_get_key_from_name_with_right_app_name(self):
-        x = ndb.Key('guestbookdemo',"1")
+        x = ndb.Key('guestbookdemo', "1")
         assert x == Greeting.get_key_from_name("1")
 
     def test_get_key_from_name_with_wrong_app_name(self):
-        x = ndb.Key('guestbook',"1")
+        x = ndb.Key('guestbook', "1")
         assert x != Greeting.get_key_from_name("1")
 
     def test_to_dict_with_right_data(self):
@@ -50,12 +52,12 @@ class TestModelGreeting(TestBaseClass):
         greeting.put()
 
         test_dict = {
-            'id' : greeting.key.id(),
-            'author' : "author",
-            'content' : "content",
-            'date' : "2014-07-14 01:11 +0000",
-            'updated_by' : "updated by",
-            'updated_date' : "2014-07-14 05:55 +0000"
+            'id': greeting.key.id(),
+            'author': "author",
+            'content': "content",
+            'date': "2014-07-14 01:11 +0000",
+            'updated_by': "updated by",
+            'updated_date': "2014-07-14 05:55 +0000"
         }
 
         assert test_dict == greeting.to_dict()
@@ -71,12 +73,12 @@ class TestModelGreeting(TestBaseClass):
         greeting.put()
 
         test_dict = {
-            'id' : 111,
-            'author' : "author",
-            'content' : "content",
-            'date' : "2014-07-14 01:11 +0000",
-            'updated_by' : "updated by",
-            'updated_date' : "2014-07-14 05:55 +0000"
+            'id': 111,
+            'author': "author",
+            'content': "content",
+            'date': "2014-07-14 01:11 +0000",
+            'updated_by': "updated by",
+            'updated_date': "2014-07-14 05:55 +0000"
         }
 
         assert test_dict != greeting.to_dict()
@@ -92,12 +94,12 @@ class TestModelGreeting(TestBaseClass):
         greeting.put()
 
         test_dict = {
-            'id' : greeting.key.id(),
-            'author' : "wrong_author",
-            'content' : "content",
-            'date' : "2014-07-14 01:11 +0000",
-            'updated_by' : "updated by",
-            'updated_date' : "2014-07-14 05:55 +0000"
+            'id': greeting.key.id(),
+            'author': "wrong_author",
+            'content': "content",
+            'date': "2014-07-14 01:11 +0000",
+            'updated_by': "updated by",
+            'updated_date': "2014-07-14 05:55 +0000"
         }
 
         assert test_dict != greeting.to_dict()
@@ -155,10 +157,7 @@ class TestModelGuestbook(TestBaseClass):
         assert items is not None and nextcurs is not None and more is True
 
     def test_get_page_with_right_cursor(self):
-        items_tmp, nextcurs_tmp, more_tmp = Guestbook.get_page(self.guestbook_name,
-                                                   1,
-                                                   None)
-
+        items_tmp, nextcurs_tmp, more_tmp = Guestbook.get_page(self.guestbook_name, 1, None)
         items, nextcurs, more = Guestbook.get_page(self.guestbook_name,
                                                    10,
                                                    nextcurs_tmp.urlsafe())
@@ -184,9 +183,10 @@ class TestModelGuestbook(TestBaseClass):
         assert items is not None and len(items) != 20
 
     def test_get_greeting_by_id(self):
-        greeting_tmp = Guestbook.put_greeting_with_data(self.guestbook_name,
-                                                    "author",
-                                                    "content")
+        greeting_tmp = Guestbook.put_greeting_with_data(
+            self.guestbook_name,
+            "author",
+            "content")
         id_tmp = greeting_tmp.key.id()
 
         greeting = Guestbook.get_greeting_by_id(self.guestbook_name,
@@ -202,8 +202,8 @@ class TestModelGuestbook(TestBaseClass):
 
     def test_delete_greeting_by_id(self):
         greeting_tmp = Guestbook.put_greeting_with_data(self.guestbook_name,
-                                                    "author",
-                                                    "content")
+                                                        "author",
+                                                        "content")
 
         Guestbook.delete_greeting_by_id(self.guestbook_name,
                                         greeting_tmp.key.id())
@@ -215,8 +215,8 @@ class TestModelGuestbook(TestBaseClass):
 
     def test_delete_greeting_by_id_with_wrong_id(self):
         greeting_tmp = Guestbook.put_greeting_with_data(self.guestbook_name,
-                                                    "author",
-                                                    "content")
+                                                        "author",
+                                                        "content")
 
         Guestbook.delete_greeting_by_id(self.guestbook_name,
                                         123456789)
@@ -228,8 +228,8 @@ class TestModelGuestbook(TestBaseClass):
 
     def test_update_greeting_by_id(self):
         greeting_tmp = Guestbook.put_greeting_with_data(self.guestbook_name,
-                                                    "author",
-                                                    "content")
+                                                        "author",
+                                                        "content")
         greeting = Guestbook.update_greeting_by_id(self.guestbook_name,
                                                    greeting_tmp.key.id(),
                                                    "content update",
