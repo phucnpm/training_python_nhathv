@@ -14,7 +14,7 @@ class Greeting(ndb.Model):
     content = ndb.StringProperty()
     date = ndb.DateTimeProperty(auto_now_add=True)
     updated_by = ndb.StringProperty()
-    updated_date = ndb.DateTimeProperty(auto_now_add=True)
+    updated_date = ndb.DateTimeProperty(auto_now_add=False)
 
     @classmethod
     def get_key_from_name(cls, guestbook_name=None):
