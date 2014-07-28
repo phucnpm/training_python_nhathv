@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dojo guestbook</title>
+    <link type="text/css" rel="stylesheet" href="/static/js/guestbook/widget/css/GuestbookWidget.css" />
+</head>
+<body>
+        <h1>Guestbook</h1>
+        <div id="greetingContainer"></div>
+        <!-- Configure Dojo -->
+        <script>
+             var dojoConfig = (function(){
+                return {
+                    async: true,
+                    isDebug: true,
+                    packages: [{
+                        name: "myGuestbook",
+                        location: "/static/js/guestbook"
+                    }]
+                };
+            })();
+        </script>
+        <!-- load dojo -->
+        <script src="//ajax.googleapis.com/ajax/libs/dojo/1.10.0/dojo/dojo.js"></script>
+        <script>
+            // Bring in our custom widget
+            require(["dojo/request", "dojo/dom", "dojo/_base/array", "myGuestbook/widget/GuestbookWidget", "dojo/domReady!"],
+                function(request, dom, arrayUtil, GuestbookWidget){
+                    // Load up our authors
+                    request.get("/api/guestbook/default_guestbook/greeting/",
+                            {
+                                handleAs: "json"
+                            }).then(function(data){
+                                // Get a reference to our container div
+                                var authorContainer = dom.byId("greetingContainer");
+
+                                arrayUtil.forEach(data.greetings, function(greeting){
+                                    // Create our widget and place it
+                                    var widget = new GuestbookWidget(greeting).placeAt(greetingContainer);
+                                });
+                            });
+            });
+        </script>
+</body>
+</html>
