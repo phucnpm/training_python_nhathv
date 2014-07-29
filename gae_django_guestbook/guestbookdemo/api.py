@@ -134,13 +134,19 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
         self.request.POST.get
         #Assign request.POST = QueryDict(request.body)
         self.request.POST = QueryDict(self.request.body)
-
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            return self.form_valid(form)
+        # get data for verify role
+        greeting_id = self.kwargs.get('greeting_id', -1)
+        guestbook_name = self.kwargs.get('guestbook_name',
+                                         AppConstants.get_default_guestbook_name())
+        if self.canUpdateGreeting(guestbook_name, greeting_id):
+            form_class = self.get_form_class()
+            form = self.get_form(form_class)
+            if form.is_valid():
+                return self.form_valid(form)
+            else:
+                return self.form_invalid(form)
         else:
-            return self.form_invalid(form)
+            return HttpResponse(status=404)
 
     # Using method form_valid for action update greeting
     def form_valid(self, form):
@@ -161,7 +167,30 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
         greeting_id = self.kwargs.get('greeting_id', -1)
         guestbook_name = self.kwargs.get('guestbook_name',
                                          AppConstants.get_default_guestbook_name())
-        if Guestbook.delete_greeting_by_id(guestbook_name, greeting_id):
-            return HttpResponse(status=204)
+        if self.canDeleteGreeting():
+            if Guestbook.delete_greeting_by_id(guestbook_name, greeting_id):
+                return HttpResponse(status=204)
+            else:
+                return HttpResponse(status=404)
         else:
             return HttpResponse(status=404)
+
+    # Verify this user can update Greeting
+    def canUpdateGreeting(self, guestbook_name, greeting_id):
+        if users.is_current_user_admin():
+            return True
+        elif users.get_current_user():
+            greeting = Guestbook.get_greeting_by_id(guestbook_name, greeting_id)
+            if greeting:
+                return users.get_current_user().nickname() == greeting.author
+            else:
+                return False
+        else:
+            return False
+
+    # Verify this user can delete Greeting
+    def canDeleteGreeting(self):
+        if users.is_current_user_admin():
+            return True
+        else:
+            return False
