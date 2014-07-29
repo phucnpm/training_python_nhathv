@@ -1,13 +1,17 @@
 <div>
     <input
-           data-dojo-attach-point="greetingIdNode"
+            data-dojo-attach-point="greetingIdNode"
             type="text" name="greetingId" value="${id}" required="true"
             hidden="true"/>
     <h3 data-dojo-attach-point="authorNode">${author} wrote:</h3>
-    <p data-dojo-attach-point="contentNode">${content}</p>
+    <input
+            data-dojo-attach-point="contentNode"
+            type="text" name="greeting_content" value="${content}" required="true"
+            data-dojo-type="dijit/form/ValidationTextBox"
+            data-dojo-props="pattern:'.{10}', invalidMessage:'Max of content is 10 chars.'"/>
     <button
             data-dojo-type="dijit/form/Button"
-            data-dojo-attach-point="editButtonNode"
+            data-dojo-attach-point="saveButtonNode"
             value="Save"></button>
     <button
             data-dojo-type="dijit/form/Button"

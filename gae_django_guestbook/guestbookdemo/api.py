@@ -7,7 +7,7 @@ from google.appengine.api.labs import taskqueue
 from google.appengine.datastore.datastore_query import Cursor
 from google.appengine.api import datastore_errors
 
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.views.generic import FormView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeletionMixin
@@ -130,6 +130,11 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
 
     # Using method PUT for action update greeting
     def put(self, *args, **kwargs):
+        #<bound method QueryDict.get of <QueryDict: {}>
+        self.request.POST.get
+        #Assign request.POST = QueryDict(request.body)
+        self.request.POST = QueryDict(self.request.body)
+
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
