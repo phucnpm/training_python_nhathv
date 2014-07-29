@@ -10,9 +10,10 @@ define([
     "dojo/on",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
-    "dojo/text!./templates/GuestbookWidget.html"
-], function(declare, baseFx, lang, domStyle, mouse, on, _WidgetBase, _TemplatedMixin, template){
-    return declare([_WidgetBase, _TemplatedMixin], {
+    "dijit/_WidgetsInTemplateMixin",
+    "dojo/text!./templates/GreetingWidget.html"
+], function(declare, baseFx, lang, domStyle, mouse, on, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template){
+    return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         author: "No Name",
         content: "No content",
         updatedBy: "No updated by",

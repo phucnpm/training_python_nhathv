@@ -1,0 +1,23 @@
+<div>
+    <input
+           data-dojo-attach-point="greetingIdNode"
+            type="text" name="greetingId" value="${id}" required="true"
+            hidden="true"/>
+    <h3 data-dojo-attach-point="authorNode">${author} wrote:</h3>
+    <p data-dojo-attach-point="contentNode">${content}</p>
+    <button
+            data-dojo-type="dijit/form/Button"
+            data-dojo-attach-point="editButtonNode"
+            value="Save"></button>
+    <button
+            data-dojo-type="dijit/form/Button"
+            data-dojo-attach-point="cancelButtonNode"
+            value="Cancel"></button>
+    <br><br>
+    <h6 data-dojo-attach-point="updatedByNode">Updated by: ${updated_by}</h6>
+    <h6 data-dojo-attach-point="updatedDateNode">Updated date: ${updated_date}</h6>
+    <button
+            data-dojo-type="dijit/form/Button"
+            data-dojo-attach-point="deleteButtonNode"
+            value="Delete"></button>
+</div>
