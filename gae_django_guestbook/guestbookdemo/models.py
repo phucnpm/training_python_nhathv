@@ -23,7 +23,7 @@ class Greeting(ndb.Model):
 
     def to_dict(self, include=None, exclude=None):
         dict = {
-            "id": self.key.id(),
+            "id_greeting": self.key.id(),
             "content": self.content,
             "date": self.date.strftime("%Y-%m-%d %H:%M +0000"),
             "updated_by": self.updated_by

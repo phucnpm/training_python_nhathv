@@ -16,7 +16,7 @@ define([
     "dojo/text!./templates/GreetingWidget.html"
 ], function(declare, baseFx, lang, domStyle, mouse, on, _request, _cookie,
             _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template){
-    return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
+    return declare("guestbook.Greeting", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         author: "No Name",
         content: "No content",
         updatedBy: "No updated by",
