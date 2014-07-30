@@ -46,7 +46,6 @@ define([
         },
 
         _showSignGreetingForm: function(){
-            alert("_showSignGreetingForm");
             this.signFormWidget = new SignFormWidget({GuestbookWidgetParent:this});
             this.signFormWidget.placeAt(this.signFormContainerNode);
         },
