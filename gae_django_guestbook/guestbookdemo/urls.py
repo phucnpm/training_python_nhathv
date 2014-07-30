@@ -1,5 +1,4 @@
-__author__ = 'NhatHV'
-
+from django.views.generic import TemplateView
 from django.conf.urls import patterns, url
 
 from guestbookdemo import views
@@ -20,4 +19,5 @@ urlpatterns = patterns('',
     url(r'^api/guestbook/(?P<guestbook_name>(.)+)/greeting/(?P<greeting_id>(.)+)$',
         APIGreetingDetail.as_view(),
         name="detail-greeting"),
+    url(r'^client/?$', TemplateView.as_view(template_name='guestbookdemo/client.html')),
 )

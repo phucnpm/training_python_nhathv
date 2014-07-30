@@ -107,7 +107,7 @@ ROOT_URLCONF = 'gae_django_guestbook.urls'
 
 ROOT_PATH = os.path.dirname(__file__)
 
-TEMPLATE_DIRS = (os.path.join(ROOT_PATH, "templates"),)
+TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\','/'),)
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'gae_django_guestbook.wsgi.application'
