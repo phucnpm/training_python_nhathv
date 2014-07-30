@@ -1,6 +1,6 @@
 __author__ = 'NhatHV'
 
-import json, logging
+import json
 
 from google.appengine.api import users
 from google.appengine.api.labs import taskqueue
@@ -58,7 +58,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
         data = {}
         data['greetings'] = greetings_dict
         if next_cursor:
-            data['cursor']= next_cursor.urlsafe()
+            data['cursor'] = next_cursor.urlsafe()
         data['is_more'] = is_more
 
         return data
@@ -69,7 +69,9 @@ class APIListGreeting(JSONResponseMixin, FormView):
                      number_of_greeting=AppConstants.get_default_number_of_greeting(),
                      curs_str=None):
 
-        greetings, nextcurs, more = Guestbook.get_page(guestbook_name, number_of_greeting, curs_str)
+        greetings, nextcurs, more = Guestbook.get_page(guestbook_name,
+                                                       number_of_greeting,
+                                                       curs_str)
 
         return greetings, nextcurs, more
 
@@ -118,7 +120,7 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
         if self.object:
             data = self.object.to_dict()
         else:
-            data = {"error":"wrong greeting id"}
+            data = {"error": "wrong greeting id"}
 
         return data
 

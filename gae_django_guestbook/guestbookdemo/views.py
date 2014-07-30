@@ -70,7 +70,7 @@ class MainPageView(TemplateView):
             if greeting_id > 0:
                 # get guestbook_name
                 guestbook_name = self.request.GET.get('guestbook_name',
-                                              AppConstants.get_default_guestbook_name())
+                                                      AppConstants.get_default_guestbook_name())
                 Guestbook.delete_greeting_by_id(guestbook_name, greeting_id)
 
                 return HttpResponseRedirect('/?' +
@@ -145,9 +145,9 @@ class EditGreeting(FormView):
             else:
                 greeting_author = "Anonymous"
             edit_form = EditGreetingForm(initial={'guestbook_name': guestbook_name,
-                                              'greeting_id': greeting_id,
-                                              'greeting_author': greeting_author,
-                                              'greeting_content': greeting.content})
+                                                  'greeting_id': greeting_id,
+                                                  'greeting_author': greeting_author,
+                                                  'greeting_content': greeting.content})
 
             context['form'] = edit_form
 

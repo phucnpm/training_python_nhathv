@@ -1,4 +1,5 @@
-import logging, datetime
+import logging
+import datetime
 
 from google.appengine.datastore.datastore_query import Cursor
 
@@ -17,14 +18,15 @@ class Greeting(ndb.Model):
 
     @classmethod
     def get_key_from_name(cls, guestbook_name=None):
-        return ndb.Key('guestbookdemo', guestbook_name or AppConstants.get_default_guestbook_name())
+        return ndb.Key('guestbookdemo',
+                       guestbook_name or AppConstants.get_default_guestbook_name())
 
     def to_dict(self, include=None, exclude=None):
         dict = {
-            "id":self.key.id(),
-            "content":self.content,
-            "date":self.date.strftime("%Y-%m-%d %H:%M +0000"),
-            "updated_by":self.updated_by
+            "id": self.key.id(),
+            "content": self.content,
+            "date": self.date.strftime("%Y-%m-%d %H:%M +0000"),
+            "updated_by": self.updated_by
         }
         if self.author:
             dict['author'] = self.author
