@@ -4,24 +4,25 @@
             type="text" name="greetingId" value="${id_greeting}" required="true"
             hidden="true"/>
     <h3 data-dojo-attach-point="authorNode">${author} wrote:</h3>
-    <input
+    <p
             data-dojo-attach-point="contentNode"
             type="text" name="greeting_content" value="${content}" required="true"
-            data-dojo-type="dijit/form/ValidationTextBox"
-            data-dojo-props="pattern:'.{10}', invalidMessage:'Max of content is 10 chars.'"/>
-    <button
-            data-dojo-type="dijit/form/Button"
-            data-dojo-attach-point="saveButtonNode"
-            value="Save">Save</button>
-    <button
-            data-dojo-type="dijit/form/Button"
-            data-dojo-attach-point="cancelButtonNode"
-            value="Cancel">Cancel</button>
-    <br><br>
+            data-dojo-type="dijit/InlineEditBox"
+            autoSave="false"
+            disabled="true"
+            data-dojo-props="editor:'dijit/form/ValidationTextBox',
+                             autoSave: false,
+                             editorParams: {maxLength: 10,
+                                            required: true,
+                                            autoSave: false,
+                                            invalidMessage:'Max of content is 10 chars.'}
+                             "/>
+    <div></div>
     <h6 data-dojo-attach-point="updatedByNode">Updated by: ${updated_by}</h6>
     <h6 data-dojo-attach-point="updatedDateNode">Updated date: ${updated_date}</h6>
     <button
             data-dojo-type="dijit/form/Button"
             data-dojo-attach-point="deleteButtonNode"
-            value="Delete">Delete</button>
+            value="Delete"
+            style="visibility: hidden;">Delete</button>
 </div>

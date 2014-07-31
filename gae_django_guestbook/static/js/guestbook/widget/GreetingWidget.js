@@ -5,6 +5,7 @@ define([
     "dojo/_base/declare",
     "dojo/_base/fx",
     "dojo/_base/lang",
+    "dojo/dom",
     "dojo/dom-style",
     "dojo/mouse",
     "dojo/on",
@@ -13,14 +14,17 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
+    "dijit/InlineEditBox",
     "dojo/text!./templates/GreetingWidget.html"
-], function(declare, baseFx, lang, domStyle, mouse, on, _request, _cookie,
-            _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template){
+], function(declare, baseFx, lang, dom, domStyle, mouse, on, _request, _cookie,
+            _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, InlineEditBox, template){
     return declare("guestbook.Greeting", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         author: "No Name",
         content: "No content",
         updatedBy: "No updated by",
         updatedDate: "No update date",
+
+        guestbook_name: "default_guestbook",
 
         // Our template - important!
         templateString: template,
@@ -56,14 +60,10 @@ define([
                 on(domNode, mouse.leave, lang.hitch(this, "_changeBackground", this.baseBackgroundColor, domNode)),
 
                 // handle button Delete
-                on(this.deleteButtonNode, "click", lang.hitch(this, "_onclickDeleteBtn")),
+                on(this.deleteButtonNode, "click", lang.hitch(this, "_onclickDeleteBtn"))
 
-                // handle button Save'
-                on(this.saveButtonNode, "click", lang.hitch(this, "_onclickSaveBtn"))
+                ,on(this.contentNode, "change", lang.hitch(this, "_onclickSaveBtn"))
             );
-
-            // show button edit
-            this._displayButtonEdit(true);
         },
 
         _changeBackground: function(newColor, node) {
@@ -86,7 +86,11 @@ define([
         },
 
         _onclickDeleteBtn: function(){
-            _url = "/api/guestbook/default_guestbook/greeting/"
+            alert(this.GuestbookWidgetParent);
+            var guestbook_parent = this.GuestbookWidgetParent;
+            var greetingsContainerNode = this.GuestbookWidgetParent.greetingsContainerNode;
+            var guestbook_name = this.guestbook_name;
+            _url = "/api/guestbook/" + guestbook_name + "/greeting/"
                     + this.greetingIdNode.value;
             _request.del(_url, {
                 headers: {
@@ -94,13 +98,14 @@ define([
                 }
             }).then(function(text){
                 console.log("The server returned: ", text);
+                guestbook_parent.reloadListGreeting(guestbook_name, greetingsContainerNode);
             });
         },
 
         _onclickSaveBtn: function(){
             content = this.contentNode.value;
             if (content.length > 0 && content.length <= 10){
-                _url = "/api/guestbook/default_guestbook/greeting/"
+                _url = "/api/guestbook/" + this.guestbook_name + "/greeting/"
                     + this.greetingIdNode.value;
                 _request.put(_url, {
                     data: {
@@ -116,16 +121,22 @@ define([
             } else {
                 alert("Error = This content is empty or length > 10")
             }
-        },
-
-        _displayButtonEdit: function(_isDisplay){
-            if (_isDisplay){
-                this.saveButtonNode.style = "display:'';";
-                this.cancelButtonNode.style = "display:'';";
+        }
+        , setHiddenDeleteNode:function(hidden){
+            if (hidden){
+                domStyle.set(this.deleteButtonNode.domNode, 'visibility', 'hidden');
             } else {
-                this.saveButtonNode.style = "display:'none';";
-                this.cancelButtonNode.style = "display:'none';";
+                domStyle.set(this.deleteButtonNode.domNode, 'visibility', 'visible');
             }
+        }
+        , setDisabledEditor: function(disabled){
+            this.contentNode._setDisabledAttr(disabled);
+        }
+        , setGuestbookName: function(guestbookName){
+            this.guestbook_name = guestbookName;
+        }
+        , setGuestbookParent:function(guestbook_parent){
+            this.GuestbookWidgetParent = guestbook_parent;
         }
     });
 });

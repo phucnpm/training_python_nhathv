@@ -17,7 +17,8 @@ define([
     "/static/js/guestbook/widget/SignFormWidget.js",
     "dojo/text!./templates/GuestbookWidget.html"
 ], function(declare, lang, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin,
-            request, on, dom, domConstruct, arrayUtil, GreetingWidget, SignFormWidget, template){
+            request, on, dom, domConstruct,
+            arrayUtil, GreetingWidget, SignFormWidget, template){
     return declare("guestbook.GuestbookWidget", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin,
         GreetingWidget, SignFormWidget], {
         // Our template - important!
@@ -35,6 +36,7 @@ define([
         },
 
         postCreate: function () {
+
             this.own(
                 on(this.switchButtonNode, "click", lang.hitch(this, "_onclickSwitchBtn"))
             );
@@ -51,12 +53,28 @@ define([
         },
 
         _showListGreeting: function(guestbook_name, greetingsContainerNode){
+            var is_admin = dom.byId("is_user_admin").value;
+            var user_login = dom.byId("user_login").value;
+            var guestbookWidgetParent = this;
             request.get("/api/guestbook/" + guestbook_name + "/greeting/",
                 {
                     handleAs: "json"
                 }).then(function(data){
                     arrayUtil.forEach(data.greetings, function(greeting){
                         var greetingWidget = new GreetingWidget(greeting);
+                        // show button delete for admin
+                        if (is_admin.toLowerCase() == "true"){
+                            greetingWidget.setHiddenDeleteNode(false);
+                            greetingWidget.setDisabledEditor(false);
+                        }
+                        // show button edit if author written
+                        if (user_login == greeting.author){
+                            greetingWidget.setDisabledEditor(false);
+                        }
+                        // set guestbook name
+                        greetingWidget.setGuestbookName(guestbook_name);
+                        greetingWidget.setGuestbookParent(guestbookWidgetParent);
+
                         greetingWidget.placeAt(greetingsContainerNode);
                     });
                 });

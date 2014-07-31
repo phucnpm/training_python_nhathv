@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Dojo guestbook</title>
-{#    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.9.1/dijit/themes/claro/claro.css" />#}
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.9.1/dijit/themes/claro/claro.css" />
     <link type="text/css" rel="stylesheet" href="/static/js/guestbook/widget/css/GreetingWidget.css" />
 </head>
 <body>
@@ -32,5 +32,10 @@
     ]);
 </script>
 <br>
+<input id="is_user_admin" value="{{ is_user_admin }}" type="hidden"/>
+<input id="user_login" value="{{ user_login }}" type="hidden"/>
+<br>
+<br>
+<a href="{{ url }}">{{ url_linktext }}</a>
 </body>
 </html>

@@ -60,6 +60,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
         if next_cursor:
             data['cursor'] = next_cursor.urlsafe()
         data['is_more'] = is_more
+        data['guestbook_name'] = guestbook_name
 
         return data
 

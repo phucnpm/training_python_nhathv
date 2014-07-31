@@ -31,9 +31,6 @@ define([
         constructor: function () {
         },
         postCreate: function(){
-            console.log('GuestbookWidgetParent :' + this.GuestbookWidgetParent);
-//            this.guestbookWidget = this.GuestbookWidgetParent;
-
             this.own(
                 on(this.signButtonNode, "click", lang.hitch(this, "_onclickSignBtn"))
             );
