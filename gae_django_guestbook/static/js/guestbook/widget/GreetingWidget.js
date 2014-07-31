@@ -86,7 +86,6 @@ define([
         },
 
         _onclickDeleteBtn: function(){
-            alert(this.GuestbookWidgetParent);
             var guestbook_parent = this.GuestbookWidgetParent;
             var greetingsContainerNode = this.GuestbookWidgetParent.greetingsContainerNode;
             var guestbook_name = this.guestbook_name;
