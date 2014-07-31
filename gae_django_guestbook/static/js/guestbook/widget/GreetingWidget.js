@@ -104,6 +104,9 @@ define([
         _onclickSaveBtn: function(){
             content = this.contentNode.value;
             if (content.length > 0 && content.length <= 10){
+                var guestbook_parent = this.GuestbookWidgetParent;
+                var greetingsContainerNode = this.GuestbookWidgetParent.greetingsContainerNode;
+                var guestbook_name = this.guestbook_name;
                 _url = "/api/guestbook/" + this.guestbook_name + "/greeting/"
                     + this.greetingIdNode.value;
                 _request.put(_url, {
@@ -116,6 +119,7 @@ define([
                     }
                 }).then(function(text){
                     console.log("The server returned: ", text);
+                    guestbook_parent.reloadListGreeting(guestbook_name, greetingsContainerNode);
                 });
             } else {
                 alert("Error = This content is empty or length > 10")
