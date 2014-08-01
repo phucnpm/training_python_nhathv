@@ -1,3 +1,5 @@
+import logging
+
 __author__ = 'NhatHV'
 
 import json
@@ -131,10 +133,12 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
 
     # Using method PUT for action update greeting
     def put(self, *args, **kwargs):
-        #<bound method QueryDict.get of <QueryDict: {}>
-        self.request.POST.get
-        #Assign request.POST = QueryDict(request.body)
-        self.request.POST = QueryDict(self.request.body)
+        if self.request.POST.get("greeting_content") is None:
+            #<bound method QueryDict.get of <QueryDict: {}>
+            self.request.POST.get
+            #Assign request.POST = QueryDict(request.body)
+            self.request.POST = QueryDict(self.request.body)
+
         # get data for verify role
         greeting_id = self.kwargs.get('greeting_id', -1)
         guestbook_name = self.kwargs.get('guestbook_name',
