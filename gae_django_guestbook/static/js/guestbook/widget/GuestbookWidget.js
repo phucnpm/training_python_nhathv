@@ -19,8 +19,7 @@ define([
 ], function(declare, lang, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin,
             request, on, dom, domConstruct,
             arrayUtil, GreetingWidget, SignFormWidget, template){
-    return declare("guestbook.GuestbookWidget", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin,
-        GreetingWidget, SignFormWidget], {
+    return declare("guestbook.GuestbookWidget", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         // Our template - important!
         templateString: template,
         widgetsInTemplate: true,
@@ -29,6 +28,7 @@ define([
         guestbookName: "default_guestbook",
 
         postCreate: function () {
+             this.inherited(arguments);
             // handle event
             this.own(
                 on(this.switchButtonNode, "click", lang.hitch(this, "_onclickSwitchBtn"))

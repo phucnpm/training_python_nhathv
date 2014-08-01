@@ -26,10 +26,15 @@
 <script src="//ajax.googleapis.com/ajax/libs/dojo/1.10.0/dojo/dojo.js"></script>
 <script type="text/javascript">
     require([
+        "dojo/parser",
+        "dojo/_base/config",
         "myGuestbook/widget/GuestbookWidget",
-        "dojo/domReady!",
-        "dojo/parser"
-    ]);
+        "dojo/domReady!"
+    ], function(parser, config){
+        if (!config.parseOnLoad) {
+            parser.parse();
+        }
+    });
 </script>
 <br>
 <input id="is_user_admin" value="{{ is_user_admin }}" type="hidden"/>
