@@ -36,20 +36,22 @@ define([
         },
 
         postCreate: function () {
-
+            // handle event
             this.own(
                 on(this.switchButtonNode, "click", lang.hitch(this, "_onclickSwitchBtn"))
             );
+            // load data
+            this._showListGreeting("default_guestbook", this.greetingsContainerNode);
+            this._showSignGreetingForm();
         },
 
         startup: function () {
-            this._showListGreeting("default_guestbook", this.greetingsContainerNode);
-            this._showSignGreetingForm();
         },
 
         _showSignGreetingForm: function(){
             this.signFormWidget = new SignFormWidget({GuestbookWidgetParent:this});
             this.signFormWidget.placeAt(this.signFormContainerNode);
+            this.signFormWidget.startup();
         },
 
         _showListGreeting: function(guestbook_name, greetingsContainerNode){
@@ -76,6 +78,7 @@ define([
                         greetingWidget.setGuestbookParent(guestbookWidgetParent);
 
                         greetingWidget.placeAt(greetingsContainerNode);
+                        greetingWidget.startup();
                     });
                 });
         },
