@@ -9,13 +9,11 @@
     <br>
     ============= SWITCH GUESTBOOK =============
     <br>
-    <input
-            data-dojo-attach-point="guestbookNameNode"
-            data-dojo-type="dijit/form/ValidationTextBox"
-            data-dojo-props="pattern:'.{20}', invalidMessage:'Max of content is 20 chars.'"
-            type="text" value="" required="true"/>
-    <button
-            data-dojo-type="dijit/form/Button"
+    <input type="text" value="" required="true"
+           data-dojo-attach-point="guestbookNameNode"
+           data-dojo-type="dijit/form/ValidationTextBox"
+           data-dojo-props="pattern:'.{20}', invalidMessage:'Max of content is 20 chars.'"/>
+    <button value="Switch"
             data-dojo-attach-point="switchButtonNode"
-            value="Switch">Switch</button>
+            data-dojo-type="dijit/form/Button">Switch</button>
 </div>

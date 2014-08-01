@@ -1,24 +1,24 @@
-.guestbookWidget {
+.greetingWidget {
     border: 1px solid black;
     width: 400px;
     padding: 10px;
     overflow: hidden; /* I hear this helps clear floats inside */
 }
 
-.guestbookWidget h3 {
+.greetingWidget h3 {
     font-size: 1.5em;
     font-style: italic;
     text-align: left;
     margin: 0px;
 }
 
-.guestbookWidget h6 {
+.greetingWidget h6 {
     font-style: italic;
     text-align: left;
     margin: 0px;
 }
 
-.guestbookWidget p {
+.greetingWidget p {
     font-style: italic;
     text-align: left;
     margin: 10px;

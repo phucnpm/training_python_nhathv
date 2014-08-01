@@ -30,7 +30,7 @@ define([
         templateString: template,
 
         // A class to be applied to the root node in our template
-        baseClass: "guestbookWidget",
+        baseClass: "greetingWidget",
 
         // A reference to our background animation
         mouseAnim: null,
@@ -41,10 +41,11 @@ define([
         editBackgroundColor: "#000",
 
         postCreate: function(){
-            // Get a DOM node reference for the root of our widget
-            var domNode = this.domNode;
             // Run any parent postCreate processes - can be done at any point
             this.inherited(arguments);
+
+            // Get a DOM node reference for the root of our widget
+            var domNode = this.domNode;
 
             // Set our DOM node's background color to white -
             // smoothes out the mouseenter/leave event animations
@@ -89,7 +90,7 @@ define([
             var _guestbookParent = this.GuestbookWidgetParent;
             var _guestbookName = this.guestbookName;
             _url = "/api/guestbook/" + _guestbookName + "/greeting/"
-                    + this.greetingIdNode.value;
+                + this.greetingIdNode.value;
             _request.del(_url, {
                 headers: {
                     "X-CSRFToken": _cookie('csrftoken')

@@ -28,12 +28,6 @@ define([
         // Defaut value
         guestbookName: "default_guestbook",
 
-        constructor: function () {
-        },
-
-        postMixInProperties: function () {
-        },
-
         postCreate: function () {
             // handle event
             this.own(
@@ -42,9 +36,6 @@ define([
             // load data
             this._showListGreeting(this.guestbookName);
             this._showSignGreetingForm();
-        },
-
-        startup: function () {
         },
 
         _showSignGreetingForm: function(){

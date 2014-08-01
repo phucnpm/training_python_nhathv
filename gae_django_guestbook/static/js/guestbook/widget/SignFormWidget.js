@@ -25,12 +25,8 @@ define([
         // default value
         guestbookName: "default_guestbook",
 
-        // A class to be applied to the root node in our template
-        baseClass: "signGreetingWidget",
-
-        constructor: function () {
-        },
         postCreate: function(){
+            this.inherited(arguments);
             this.own(
                 on(this.signButtonNode, "click", lang.hitch(this, "_onclickSignBtn"))
             );
