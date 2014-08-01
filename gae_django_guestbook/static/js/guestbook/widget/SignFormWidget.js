@@ -41,7 +41,14 @@ define([
         _signNewGreeting: function(guestbookWidget, guestbookName, greetingContent){
             var _contentLength = greetingContent.length;
             if (_contentLength > 0 && _contentLength <= 10){
-                this.GreetingStore.createGreeting(guestbookWidget, guestbookName, greetingContent);
+                var _createGreetingDeferred = this.GreetingStore.createGreeting(guestbookName, greetingContent);
+                _createGreetingDeferred.then(function(results){
+                    guestbookWidget.reloadListGreeting(guestbookName);
+                },function(err){
+                    console.log(err.message);
+                }, function(progress){
+                    console.log(progress);
+                })
             } else {
                 alert("Error: This content is empty or length > 10 chars");
             }

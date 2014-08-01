@@ -15,10 +15,11 @@ define([
     "dojo/_base/array",
     "/static/js/guestbook/widget/GreetingWidget.js",
     "/static/js/guestbook/widget/SignFormWidget.js",
+    "/static/js/guestbook/widget/models/GreetingStore.js",
     "dojo/text!./templates/GuestbookWidget.html"
 ], function(declare, lang, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin,
             request, on, dom, domConstruct,
-            arrayUtil, GreetingWidget, SignFormWidget, template){
+            arrayUtil, GreetingWidget, SignFormWidget, GreetingStore, template){
     return declare("guestbook.GuestbookWidget", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         // Our template - important!
         templateString: template,
@@ -28,7 +29,10 @@ define([
         guestbookName: "default_guestbook",
 
         postCreate: function () {
-             this.inherited(arguments);
+            this.inherited(arguments);
+
+            this.GreetingStore = new GreetingStore();
+
             // handle event
             this.own(
                 on(this.switchButtonNode, "click", lang.hitch(this, "_onclickSwitchBtn"))
@@ -36,6 +40,7 @@ define([
             // load data
             this._showListGreeting(this.guestbookName);
             this._showSignGreetingForm();
+
         },
 
         _showSignGreetingForm: function(){
@@ -48,30 +53,34 @@ define([
             var _isAdmin = dom.byId("is_user_admin").value;
             var _userLogin = dom.byId("user_login").value;
             var _guestbookWidgetParent = this;
-            request.get("/api/guestbook/" + guestbookName + "/greeting/",
-                {
-                    handleAs: "json"
-                }).then(function(data){
-                    var _newDocFrag = document.createDocumentFragment();
-                    arrayUtil.forEach(data.greetings, function(greeting){
-                        var greetingWidget = new GreetingWidget(greeting);
-                        // show button delete for admin
-                        if (_isAdmin.toLowerCase() == "true"){
-                            greetingWidget.setHiddenDeleteNode(false);
-                            greetingWidget.setDisabledEditor(false);
-                        }
-                        // show button edit if author written
-                        if (_userLogin == greeting.author){
-                            greetingWidget.setDisabledEditor(false);
-                        }
-                        // set guestbook name
-                        greetingWidget.setGuestbookName(guestbookName);
-                        greetingWidget.setGuestbookParent(_guestbookWidgetParent);
 
-                        greetingWidget.placeAt(_newDocFrag);
-                    });
-                    domConstruct.place(_newDocFrag, "greetingsContainer");
+            var _greetingList = this.GreetingStore.getListGreeting(guestbookName);
+            _greetingList.then(function(results){
+                console.log(results);
+                var _newDocFrag = document.createDocumentFragment();
+                arrayUtil.forEach(results.greetings, function(greeting){
+                    var greetingWidget = new GreetingWidget(greeting);
+                    // show button delete for admin
+                    if (_isAdmin.toLowerCase() == "true"){
+                        greetingWidget.setHiddenDeleteNode(false);
+                        greetingWidget.setDisabledEditor(false);
+                    }
+                    // show button edit if author written
+                    if (_userLogin == greeting.author){
+                        greetingWidget.setDisabledEditor(false);
+                    }
+                    // set guestbook name
+                    greetingWidget.setGuestbookName(guestbookName);
+                    greetingWidget.setGuestbookParent(_guestbookWidgetParent);
+
+                    greetingWidget.placeAt(_newDocFrag);
                 });
+                domConstruct.place(_newDocFrag, "greetingsContainer");
+            }, function(err){
+                console.log(err.message);
+            }, function(progress){
+                console.log(progress);
+            });
         },
 
         _onclickSwitchBtn: function(){

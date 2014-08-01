@@ -4,11 +4,13 @@
 define([
     "dojo/_base/declare",
     "dojo/request",
-    "dojo/cookie"
-], function(declare, request, _cookie){
-    return declare("guestbook.GreetingStore", [], {
+    "dojo/cookie",
+    "dojo/Deferred"
+], function(declare, request, _cookie, Deferred){
+    return declare("guestbook.GreetingStore", [Deferred], {
         // Create a new greeting
-        createGreeting: function(guestbookWidget, guestbookName, greetingContent){
+        createGreeting: function(guestbookName, greetingContent){
+            var deferred = new Deferred();
             var _contentLength = greetingContent.length;
             if (_contentLength > 0 && _contentLength <= 10){
                 _url = "/api/guestbook/" + guestbookName + "/greeting/";
@@ -20,18 +22,23 @@ define([
                     headers: {
                         "X-CSRFToken": _cookie('csrftoken')
                     }
-                }).then(function(text){
-                    console.log("The server returned: ", text);
-                    guestbookWidget.reloadListGreeting(guestbookName);
+                }).then(function(data){
+                    console.log("The server returned: ", data);
+                    deferred.resolve(data);
                 }, function(error){
                     console.log("The server error: ", error.message);
+                    deferred.reject(error);
                 });
             } else {
-                alert("Error = This content is empty or length > 10 chars");
+                var error = {message: "This content is empty or length > 10 char"};
+                deferred.reject(error);
             }
+            return deferred.promise;
         },
         // Update a greeting
-        updateGreeting: function(guestbookWidget, guestbookName, greetingId, greetingContent){
+        updateGreeting: function(guestbookName, greetingId, greetingContent){
+            var deferred = new Deferred();
+
             var _contentLength = greetingContent.length;
             if (_contentLength > 0 && _contentLength <= 10){
                 _url = "/api/guestbook/" + guestbookName + "/greeting/" + greetingId;
@@ -43,29 +50,50 @@ define([
                     headers: {
                         "X-CSRFToken": _cookie('csrftoken')
                     }
-                }).then(function(text){
-                    console.log("The server returned: ", text);
-                    guestbookWidget.reloadListGreeting(guestbookName);
+                }).then(function(data){
+                    console.log("The server returned: ", data);
+                    deferred.resolve(data);
                 }, function(error){
                     console.log("The server error: ", error.message);
+                    deferred.reject(error);
                 });
             } else {
-                alert("Error = This content is empty or length > 10 chars")
+                var error = {message: "This content is empty or length > 10 char"};
+                deferred.reject(error);
             }
+            return deferred.promise;
         },
         // Delete a greeting
-        deleteGreeting: function(guestbookWidget, guestbookName, greetingId){
+        deleteGreeting: function(guestbookName, greetingId){
+            var deferred = new Deferred();
             _url = "/api/guestbook/" + guestbookName + "/greeting/" + greetingId;
             request.del(_url, {
                 headers: {
                     "X-CSRFToken": _cookie('csrftoken')
                 }
-            }).then(function(text){
-                console.log("The server returned: ", text);
-                guestbookWidget.reloadListGreeting(guestbookName);
+            }).then(function(data){
+                console.log("The server returned: ", data);
+                deferred.resolve(data);
             }, function(error){
                 console.log("The server error: ", error.message);
+                deferred.reject(error);
             });
+            return deferred.promise;
+        },
+        // get list greeting
+        getListGreeting: function(guestbookName){
+            var deferred = new Deferred();
+            request.get("/api/guestbook/" + guestbookName + "/greeting/",
+                {
+                    handleAs: "json"
+                }).then(function(data){
+                    console.log("The server returned: ", data);
+                    deferred.resolve(data);
+                }, function(error){
+                    console.log("The server error: ", error.message);
+                    deferred.reject(error);
+                });
+            return deferred.promise;
         }
     })
 });

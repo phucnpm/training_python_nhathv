@@ -92,7 +92,15 @@ define([
             var _guestbookParent = this.GuestbookWidgetParent;
             var _guestbookName = this.guestbookName;
             var _greetingId = this.greetingIdNode.value;
-            this.GreetingStore.deleteGreeting(_guestbookParent, _guestbookName, _greetingId);
+            var _deleteGreetingDeferred = this.GreetingStore.deleteGreeting(_guestbookName, _greetingId);
+            _deleteGreetingDeferred.then(function(results){
+                    _guestbookParent.reloadListGreeting(_guestbookName);
+                },
+                function(err){
+                    console.log(err.message);
+                }, function(progress){
+                    console.log(progress);
+                })
         },
 
         _onclickSaveBtn: function(){
@@ -103,7 +111,15 @@ define([
 
             var _contentLength = _greetingContent.length;
             if (_contentLength > 0 && _contentLength <= 10){
-                this.GreetingStore.updateGreeting(_guestbookParent, _guestbookName, _greetingId, _greetingContent);
+                var _updateGreetingDeferred = this.GreetingStore.updateGreeting(_guestbookName, _greetingId, _greetingContent);
+                _updateGreetingDeferred.then(function(results){
+                    console.log(results);
+                },function(err){
+                    console.log(err.message);
+                    alert(err.message);
+                }, function(progress){
+                    console.log(progress);
+                })
             } else {
                 alert("Error: This content is empty or length > 10 chars")
             }
