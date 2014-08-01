@@ -133,7 +133,7 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
 
     # Using method PUT for action update greeting
     def put(self, *args, **kwargs):
-        if self.request.POST.get("greeting_content") is None:
+        if not self.request.POST:
             #<bound method QueryDict.get of <QueryDict: {}>
             self.request.POST.get
             #Assign request.POST = QueryDict(request.body)
