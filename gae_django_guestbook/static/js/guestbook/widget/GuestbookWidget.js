@@ -75,9 +75,14 @@ define([
         },
 
         _onclickSwitchBtn: function(){
-            this.reloadListGreeting(this.guestbookNameNode.value);
-            // set guestbook name for Sign form
-            this.signFormWidget._setGuestbookNameAttr(this.guestbookNameNode.value);
+            var _guestbookNameLength = this.guestbookNameNode.value;
+            if (_guestbookNameLength > 0 && _guestbookNameLength <= 20){
+                this.reloadListGreeting(this.guestbookNameNode.value);
+                // set guestbook name for Sign form
+                this.signFormWidget._setGuestbookNameAttr(this.guestbookNameNode.value);
+            } else {
+                alert("Error: Guestbook name is empty or length > 20 chars")
+            }
         },
 
         _removeAllGreeting: function(){

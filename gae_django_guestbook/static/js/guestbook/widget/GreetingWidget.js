@@ -9,15 +9,15 @@ define([
     "dojo/dom-style",
     "dojo/mouse",
     "dojo/on",
-    "dojo/request",
-    "dojo/cookie",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dijit/InlineEditBox",
-    "dojo/text!./templates/GreetingWidget.html"
-], function(declare, baseFx, lang, dom, domStyle, mouse, on, _request, _cookie,
-            _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, InlineEditBox, template){
+    "dojo/text!./templates/GreetingWidget.html",
+    "/static/js/guestbook/widget/models/GreetingStore.js"
+], function(declare, baseFx, lang, dom, domStyle, mouse, on,
+            _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin,
+            InlineEditBox, template, GreetingStore){
     return declare("guestbook.Greeting", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         author: "No Name",
         content: "No content",
@@ -65,6 +65,8 @@ define([
                 // button save in InLineEditText
                 ,on(this.contentNode, "change", lang.hitch(this, "_onclickSaveBtn"))
             );
+
+            this.GreetingStore = new GreetingStore();
         },
 
         _changeBackground: function(newColor, node) {
@@ -89,39 +91,21 @@ define([
         _onclickDeleteBtn: function(){
             var _guestbookParent = this.GuestbookWidgetParent;
             var _guestbookName = this.guestbookName;
-            _url = "/api/guestbook/" + _guestbookName + "/greeting/"
-                + this.greetingIdNode.value;
-            _request.del(_url, {
-                headers: {
-                    "X-CSRFToken": _cookie('csrftoken')
-                }
-            }).then(function(text){
-                console.log("The server returned: ", text);
-                _guestbookParent.reloadListGreeting(_guestbookName);
-            });
+            var _greetingId = this.greetingIdNode.value;
+            this.GreetingStore.deleteGreeting(_guestbookParent, _guestbookName, _greetingId);
         },
 
         _onclickSaveBtn: function(){
-            content = this.contentNode.value;
-            if (content.length > 0 && content.length <= 10){
-                var _guestbookParent = this.GuestbookWidgetParent;
-                var _guestbookName = this.guestbookName;
-                _url = "/api/guestbook/" + _guestbookName + "/greeting/"
-                    + this.greetingIdNode.value;
-                _request.put(_url, {
-                    data: {
-                        greeting_author: "None",
-                        greeting_content: this.contentNode.value
-                    },
-                    headers: {
-                        "X-CSRFToken": _cookie('csrftoken')
-                    }
-                }).then(function(text){
-                    console.log("The server returned: ", text);
-                    _guestbookParent.reloadListGreeting(_guestbookName);
-                });
+            var _guestbookParent = this.GuestbookWidgetParent;
+            var _guestbookName = this.guestbookName;
+            var _greetingContent = this.contentNode.value;
+            var _greetingId = this.greetingIdNode.value;
+
+            var _contentLength = _greetingContent.length;
+            if (_contentLength > 0 && _contentLength <= 10){
+                this.GreetingStore.updateGreeting(_guestbookParent, _guestbookName, _greetingId, _greetingContent);
             } else {
-                alert("Error = This content is empty or length > 10")
+                alert("Error: This content is empty or length > 10 chars")
             }
         }
         , setHiddenDeleteNode:function(hidden){
