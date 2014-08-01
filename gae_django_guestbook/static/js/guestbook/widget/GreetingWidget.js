@@ -24,7 +24,7 @@ define([
         updatedBy: "No updated by",
         updatedDate: "No update date",
 
-        guestbook_name: "default_guestbook",
+        guestbookName: "default_guestbook",
 
         // Our template - important!
         templateString: template,
@@ -61,7 +61,7 @@ define([
 
                 // handle button Delete
                 on(this.deleteButtonNode, "click", lang.hitch(this, "_onclickDeleteBtn"))
-
+                // button save in InLineEditText
                 ,on(this.contentNode, "change", lang.hitch(this, "_onclickSaveBtn"))
             );
         },
@@ -86,10 +86,10 @@ define([
         },
 
         _onclickDeleteBtn: function(){
-            var guestbook_parent = this.GuestbookWidgetParent;
-            var greetingsContainerNode = this.GuestbookWidgetParent.greetingsContainerNode;
-            var guestbook_name = this.guestbook_name;
-            _url = "/api/guestbook/" + guestbook_name + "/greeting/"
+            var _guestbookParent = this.GuestbookWidgetParent;
+            var _greetingsContainerNode = this.GuestbookWidgetParent.greetingsContainerNode;
+            var _guestbookName = this.guestbookName;
+            _url = "/api/guestbook/" + _guestbookName + "/greeting/"
                     + this.greetingIdNode.value;
             _request.del(_url, {
                 headers: {
@@ -97,17 +97,17 @@ define([
                 }
             }).then(function(text){
                 console.log("The server returned: ", text);
-                guestbook_parent.reloadListGreeting(guestbook_name, greetingsContainerNode);
+                _guestbookParent.reloadListGreeting(_guestbookName, _greetingsContainerNode);
             });
         },
 
         _onclickSaveBtn: function(){
             content = this.contentNode.value;
             if (content.length > 0 && content.length <= 10){
-                var guestbook_parent = this.GuestbookWidgetParent;
-                var greetingsContainerNode = this.GuestbookWidgetParent.greetingsContainerNode;
-                var guestbook_name = this.guestbook_name;
-                _url = "/api/guestbook/" + this.guestbook_name + "/greeting/"
+                var _guestbookParent = this.GuestbookWidgetParent;
+                var _greetingsContainerNode = this.GuestbookWidgetParent.greetingsContainerNode;
+                var _guestbookName = this.guestbookName;
+                _url = "/api/guestbook/" + _guestbookName + "/greeting/"
                     + this.greetingIdNode.value;
                 _request.put(_url, {
                     data: {
@@ -119,7 +119,7 @@ define([
                     }
                 }).then(function(text){
                     console.log("The server returned: ", text);
-                    guestbook_parent.reloadListGreeting(guestbook_name, greetingsContainerNode);
+                    _guestbookParent.reloadListGreeting(_guestbookName, _greetingsContainerNode);
                 });
             } else {
                 alert("Error = This content is empty or length > 10")
@@ -136,10 +136,10 @@ define([
             this.contentNode._setDisabledAttr(disabled);
         }
         , setGuestbookName: function(guestbookName){
-            this.guestbook_name = guestbookName;
+            this.guestbookName = guestbookName;
         }
-        , setGuestbookParent:function(guestbook_parent){
-            this.GuestbookWidgetParent = guestbook_parent;
+        , setGuestbookParent:function(guestbookParent){
+            this.GuestbookWidgetParent = guestbookParent;
         }
     });
 });

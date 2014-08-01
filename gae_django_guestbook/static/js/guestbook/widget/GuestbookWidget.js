@@ -32,7 +32,6 @@ define([
         },
 
         postMixInProperties: function () {
-
         },
 
         postCreate: function () {
@@ -41,7 +40,7 @@ define([
                 on(this.switchButtonNode, "click", lang.hitch(this, "_onclickSwitchBtn"))
             );
             // load data
-            this._showListGreeting("default_guestbook", this.greetingsContainerNode);
+            this._showListGreeting(this.guestbookName, this.greetingsContainerNode);
             this._showSignGreetingForm();
         },
 
@@ -54,28 +53,28 @@ define([
             this.signFormWidget.startup();
         },
 
-        _showListGreeting: function(guestbook_name, greetingsContainerNode){
-            var is_admin = dom.byId("is_user_admin").value;
-            var user_login = dom.byId("user_login").value;
-            var guestbookWidgetParent = this;
-            request.get("/api/guestbook/" + guestbook_name + "/greeting/",
+        _showListGreeting: function(guestbookName, greetingsContainerNode){
+            var _isAdmin = dom.byId("is_user_admin").value;
+            var _userLogin = dom.byId("user_login").value;
+            var _guestbookWidgetParent = this;
+            request.get("/api/guestbook/" + guestbookName + "/greeting/",
                 {
                     handleAs: "json"
                 }).then(function(data){
                     arrayUtil.forEach(data.greetings, function(greeting){
                         var greetingWidget = new GreetingWidget(greeting);
                         // show button delete for admin
-                        if (is_admin.toLowerCase() == "true"){
+                        if (_isAdmin.toLowerCase() == "true"){
                             greetingWidget.setHiddenDeleteNode(false);
                             greetingWidget.setDisabledEditor(false);
                         }
                         // show button edit if author written
-                        if (user_login == greeting.author){
+                        if (_userLogin == greeting.author){
                             greetingWidget.setDisabledEditor(false);
                         }
                         // set guestbook name
-                        greetingWidget.setGuestbookName(guestbook_name);
-                        greetingWidget.setGuestbookParent(guestbookWidgetParent);
+                        greetingWidget.setGuestbookName(guestbookName);
+                        greetingWidget.setGuestbookParent(_guestbookWidgetParent);
 
                         greetingWidget.placeAt(greetingsContainerNode);
                         greetingWidget.startup();
@@ -95,13 +94,13 @@ define([
             }
         },
 
-        _setGuestbookNameAttr: function(guestbook_name){
-            this.guestbookNameNode.set("value", guestbook_name);
+        _setGuestbookNameAttr: function(guestbookName){
+            this.guestbookNameNode.set("value", guestbookName);
         },
 
-        reloadListGreeting:function(guestbook_name, greetingsContainerNode){
+        reloadListGreeting:function(guestbookName, greetingsContainerNode){
             this._removeAllGreeting();
-            this._showListGreeting(guestbook_name, greetingsContainerNode);
+            this._showListGreeting(guestbookName, greetingsContainerNode);
         }
     });
 });

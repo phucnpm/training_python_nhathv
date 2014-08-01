@@ -45,7 +45,7 @@ define([
 
         signNewGreeting: function(guestbookWidget, greetingContenerNode,
                                   guestbookName, greetingContent){
-            _contentLength = greetingContent.length;
+            var _contentLength = greetingContent.length;
             if (_contentLength > 0 && _contentLength <= 10){
                 _request.post("/api/guestbook/" + guestbookName + "/greeting/", {
                     data: {
@@ -64,8 +64,8 @@ define([
             }
         },
 
-        _setGuestbookNameAttr: function(guestbook_name){
-            this.guestbookNameNode.value = guestbook_name;
+        _setGuestbookNameAttr: function(guestbookName){
+            this.guestbookNameNode.value = guestbookName;
         }
     });
 });
