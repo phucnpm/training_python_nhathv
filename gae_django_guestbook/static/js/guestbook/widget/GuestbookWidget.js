@@ -40,7 +40,7 @@ define([
                 on(this.switchButtonNode, "click", lang.hitch(this, "_onclickSwitchBtn"))
             );
             // load data
-            this._showListGreeting(this.guestbookName, this.greetingsContainerNode);
+            this._showListGreeting(this.guestbookName);
             this._showSignGreetingForm();
         },
 
@@ -53,7 +53,7 @@ define([
             this.signFormWidget.startup();
         },
 
-        _showListGreeting: function(guestbookName, greetingsContainerNode){
+        _showListGreeting: function(guestbookName){
             var _isAdmin = dom.byId("is_user_admin").value;
             var _userLogin = dom.byId("user_login").value;
             var _guestbookWidgetParent = this;
@@ -61,6 +61,7 @@ define([
                 {
                     handleAs: "json"
                 }).then(function(data){
+                    var _newDocFrag = document.createDocumentFragment();
                     arrayUtil.forEach(data.greetings, function(greeting){
                         var greetingWidget = new GreetingWidget(greeting);
                         // show button delete for admin
@@ -76,31 +77,30 @@ define([
                         greetingWidget.setGuestbookName(guestbookName);
                         greetingWidget.setGuestbookParent(_guestbookWidgetParent);
 
-                        greetingWidget.placeAt(greetingsContainerNode);
-                        greetingWidget.startup();
+                        greetingWidget.placeAt(_newDocFrag);
                     });
+                    domConstruct.place(_newDocFrag, "greetingsContainer");
                 });
         },
 
         _onclickSwitchBtn: function(){
-            this.reloadListGreeting(this.guestbookNameNode.value, this.greetingsContainerNode);
+            this.reloadListGreeting(this.guestbookNameNode.value);
             // set guestbook name for Sign form
             this.signFormWidget._setGuestbookNameAttr(this.guestbookNameNode.value);
         },
 
         _removeAllGreeting: function(){
-            while (this.greetingsContainerNode.hasChildNodes()) {
-                this.greetingsContainerNode.removeChild(this.greetingsContainerNode.lastChild);
-            }
+            var greetingsContainer = dom.byId("greetingsContainer");
+            greetingsContainer.innerHTML = "";
         },
 
         _setGuestbookNameAttr: function(guestbookName){
             this.guestbookNameNode.set("value", guestbookName);
         },
 
-        reloadListGreeting:function(guestbookName, greetingsContainerNode){
+        reloadListGreeting:function(guestbookName){
             this._removeAllGreeting();
-            this._showListGreeting(guestbookName, greetingsContainerNode);
+            this._showListGreeting(guestbookName);
         }
     });
 });

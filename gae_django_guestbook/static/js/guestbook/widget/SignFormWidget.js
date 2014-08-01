@@ -38,13 +38,11 @@ define([
 
         _onclickSignBtn : function(){
             this.signNewGreeting(this.GuestbookWidgetParent,
-                this.GuestbookWidgetParent.greetingsContainerNode,
                 this.guestbookNameNode.value,
                 this.contentNode.value);
         },
 
-        signNewGreeting: function(guestbookWidget, greetingContenerNode,
-                                  guestbookName, greetingContent){
+        signNewGreeting: function(guestbookWidget, guestbookName, greetingContent){
             var _contentLength = greetingContent.length;
             if (_contentLength > 0 && _contentLength <= 10){
                 _request.post("/api/guestbook/" + guestbookName + "/greeting/", {
@@ -57,7 +55,7 @@ define([
                     }
                 }).then(function(text){
                     console.log("The server returned: ", text);
-                    guestbookWidget.reloadListGreeting(guestbookName, greetingContenerNode);
+                    guestbookWidget.reloadListGreeting(guestbookName);
                 });
             } else {
                 alert("Error = This content is empty or length > 10");

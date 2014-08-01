@@ -87,7 +87,6 @@ define([
 
         _onclickDeleteBtn: function(){
             var _guestbookParent = this.GuestbookWidgetParent;
-            var _greetingsContainerNode = this.GuestbookWidgetParent.greetingsContainerNode;
             var _guestbookName = this.guestbookName;
             _url = "/api/guestbook/" + _guestbookName + "/greeting/"
                     + this.greetingIdNode.value;
@@ -97,7 +96,7 @@ define([
                 }
             }).then(function(text){
                 console.log("The server returned: ", text);
-                _guestbookParent.reloadListGreeting(_guestbookName, _greetingsContainerNode);
+                _guestbookParent.reloadListGreeting(_guestbookName);
             });
         },
 
@@ -105,7 +104,6 @@ define([
             content = this.contentNode.value;
             if (content.length > 0 && content.length <= 10){
                 var _guestbookParent = this.GuestbookWidgetParent;
-                var _greetingsContainerNode = this.GuestbookWidgetParent.greetingsContainerNode;
                 var _guestbookName = this.guestbookName;
                 _url = "/api/guestbook/" + _guestbookName + "/greeting/"
                     + this.greetingIdNode.value;
@@ -119,7 +117,7 @@ define([
                     }
                 }).then(function(text){
                     console.log("The server returned: ", text);
-                    _guestbookParent.reloadListGreeting(_guestbookName, _greetingsContainerNode);
+                    _guestbookParent.reloadListGreeting(_guestbookName);
                 });
             } else {
                 alert("Error = This content is empty or length > 10")
