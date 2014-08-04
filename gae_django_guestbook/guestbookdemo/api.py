@@ -81,15 +81,14 @@ class APIListGreeting(JSONResponseMixin, FormView):
     # Using method form_valid for API create Greeting
     def post(self, request, *args, **kwargs):
         # convert request.body to request for form validation (if needed)
-        if not self.request.POST:
-            try:
-                json_object = json.loads(self.request.body)
-            except ValueError:
-                # invalid json
-                self.request.POST = QueryDict(self.request.body)
-            else:
-                # valid json
-                self.request.POST = json_object
+        try:
+            json_object = json.loads(self.request.body)
+        except ValueError:
+            # invalid json
+            self.request.POST = QueryDict(self.request.body)
+        else:
+            # valid json
+            self.request.POST = json_object
 
         form_class = self.get_form_class()
         form = self.get_form(form_class)
