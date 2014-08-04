@@ -79,6 +79,27 @@ class APIListGreeting(JSONResponseMixin, FormView):
         return greetings, nextcurs, more
 
     # Using method form_valid for API create Greeting
+    def post(self, request, *args, **kwargs):
+        # convert request.body to request for form validation (if needed)
+        if not self.request.POST:
+            try:
+                json_object = json.loads(self.request.body)
+            except ValueError:
+                # invalid json
+                self.request.POST = QueryDict(self.request.body)
+            else:
+                # valid json
+                self.request.POST = json_object
+
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    # Using method form_valid for API create Greeting
     def form_valid(self, form):
         new_greeting = form.save_greeting()
         if new_greeting:
@@ -133,9 +154,16 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
 
     # Using method PUT for action update greeting
     def put(self, *args, **kwargs):
+        # convert request.body to request for form validation (if needed)
         if not self.request.POST:
-            #Assign request.POST = QueryDict(request.body)
-            self.request.POST = QueryDict(self.request.body)
+            try:
+                json_object = json.loads(self.request.body)
+            except ValueError:
+                # invalid json
+                self.request.POST = QueryDict(self.request.body)
+            else:
+                # valid json
+                self.request.POST = json_object
 
         # get data for verify role
         greeting_id = self.kwargs.get('greeting_id', -1)
