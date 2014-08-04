@@ -19,10 +19,11 @@ define([
             _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin,
             InlineEditBox, template, GreetingStore){
     return declare("guestbook.Greeting", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
-        author: "No Name",
-        content: "No content",
-        updatedBy: "No updated by",
-        updatedDate: "No update date",
+        author: "Anonymous",
+        date: "",
+        content: "",
+        updated_by: "",
+        updated_date: "",
 
         guestbookName: "default_guestbook",
 
@@ -113,7 +114,7 @@ define([
             if (_contentLength > 0 && _contentLength <= 10){
                 var _updateGreetingDeferred = this.GreetingStore.updateGreeting(_guestbookName, _greetingId, _greetingContent);
                 _updateGreetingDeferred.then(function(results){
-                    console.log(results);
+                    _guestbookParent.reloadListGreeting(_guestbookName);
                 },function(err){
                     console.log(err.message);
                     alert(err.message);
