@@ -25,18 +25,17 @@ class Greeting(ndb.Model):
         dict = {
             "id_greeting": self.key.id(),
             "content": self.content,
-            "date": self.date.strftime("%Y-%m-%d %H:%M +0000"),
-            "updated_by": self.updated_by
+            "date": self.date.strftime("%Y-%m-%d %H:%M +0000")
         }
+
         if self.author:
             dict['author'] = self.author
-        else:
-            dict['author'] = "Anonymous"
 
         if self.updated_date:
             dict['updated_date'] = self.updated_date.strftime("%Y-%m-%d %H:%M +0000")
-        else:
-            dict['updated_date'] = None
+
+        if self.updated_by:
+            dict['updated_by'] = self.updated_by
 
         return dict
 
