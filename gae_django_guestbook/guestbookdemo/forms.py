@@ -1,5 +1,3 @@
-__author__ = 'NhatHV'
-
 from google.appengine.api import users
 
 from django import forms

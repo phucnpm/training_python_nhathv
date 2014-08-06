@@ -1,5 +1,3 @@
-__author__ = 'NhatHV'
-
 from datetime import datetime
 
 from google.appengine.ext import ndb

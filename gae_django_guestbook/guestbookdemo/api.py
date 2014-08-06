@@ -1,7 +1,3 @@
-import logging
-
-__author__ = 'NhatHV'
-
 import json
 
 from google.appengine.api import users

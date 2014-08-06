@@ -1,6 +1,3 @@
-/**
- * Created by NhatHV on 8/1/14.
- */
 define([
     "dojo/_base/declare",
     "dojo/cookie",

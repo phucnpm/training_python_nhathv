@@ -1,6 +1,3 @@
-/**
- * Created by NhatHV on 7/28/14.
- */
 define([
     "dojo/_base/declare",
     "dojo/_base/fx",

@@ -1,5 +1,3 @@
-__author__ = 'NhatHV'
-
 from django.conf.urls import patterns, url
 
 from guestbookdemo import views
