@@ -11,9 +11,13 @@ define([
             },
             runTest: function(){
                 var signFormWidget = new SignFormWidget();
-                var onclickSignBtnSpy = sinon.spy(signFormWidget, "_onclickSignBtn");
+                var mock = sinon.mock(signFormWidget);
+
+                // expect: Called once
+                mock.expects("_onclickSignBtn").once();
+                // trigger
                 signFormWidget.signButtonNode.onClick();
-                doh.t(onclickSignBtnSpy.calledOnce);
+                mock.verify();
             }
         }]);
 });
