@@ -24,6 +24,7 @@ define([
         // Our template - important!
         templateString: template,
         widgetsInTemplate: true,
+        autoLoadData: true,
 
         // Defaut value
         guestbookName: "default_guestbook",
@@ -37,10 +38,11 @@ define([
             this.own(
                 on(this.switchButtonNode, "click", lang.hitch(this, "_onclickSwitchBtn"))
             );
-            // load data
-            this._showListGreeting(this.guestbookName);
+            if (this.autoLoadData){
+                // load data
+                this._showListGreeting(this.guestbookName);
+            }
             this._showSignGreetingForm();
-
         },
 
         _showSignGreetingForm: function(){
@@ -50,13 +52,22 @@ define([
         },
 
         _showListGreeting: function(guestbookName){
-            var _isAdmin = dom.byId("is_user_admin").value;
-            var _userLogin = dom.byId("user_login").value;
+            var _isAdmin = "false";
+            var isUserAdminNode = dom.byId("is_user_admin");
+            if (isUserAdminNode){
+                _isAdmin = isUserAdminNode.value;
+            }
+
+            var _userLogin = "false";
+            var userLoginNode = dom.byId("user_login");
+            if (userLoginNode){
+                _userLogin = userLoginNode.value;
+            }
+
             var _guestbookWidgetParent = this;
 
             var _greetingList = this.GreetingStore.getListGreeting(guestbookName);
             _greetingList.then(function(results){
-                console.log(results);
                 var _newDocFrag = document.createDocumentFragment();
                 arrayUtil.forEach(results.greetings, function(greeting){
                     var greetingWidget = new GreetingWidget(greeting);
@@ -75,7 +86,7 @@ define([
 
                     greetingWidget.placeAt(_newDocFrag);
                 });
-                domConstruct.place(_newDocFrag, "greetingsContainer");
+                domConstruct.place(_newDocFrag, _guestbookWidgetParent.greetingsContainerNode);
             }, function(err){
                 console.log(err.message);
             }, function(progress){
@@ -95,8 +106,7 @@ define([
         },
 
         _removeAllGreeting: function(){
-            var greetingsContainer = dom.byId("greetingsContainer");
-            greetingsContainer.innerHTML = "";
+            this.greetingsContainerNode.innerHTML = "";
         },
 
         _setGuestbookNameAttr: function(guestbookName){

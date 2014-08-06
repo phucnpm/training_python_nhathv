@@ -13,8 +13,8 @@ define([
             setUp: function(){
             },
             runTest: function(){
-                signFormWidget = new SignFormWidget();
-                onclickSignBtnSpy = sinon.spy(signFormWidget, "_onclickSignBtn");
+                var signFormWidget = new SignFormWidget();
+                var onclickSignBtnSpy = sinon.spy(signFormWidget, "_onclickSignBtn");
                 signFormWidget.signButtonNode.onClick();
                 doh.t(onclickSignBtnSpy.calledOnce);
             }
