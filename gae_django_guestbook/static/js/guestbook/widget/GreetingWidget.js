@@ -16,6 +16,7 @@ define([
             _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin,
             InlineEditBox, template, GreetingStore){
     return declare("guestbook.Greeting", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
+        id_greeting: 0,
         author: "Anonymous",
         date: "",
         content: "",
