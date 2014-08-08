@@ -134,7 +134,7 @@ define([
             },timeout: 5000
         },
         {
-            name: "Test_Do_Not_Reload_GreetingList_After_PUT_Wrong_Greeting",
+            name: "Test_Do_Not_Reload_GreetingList_After_Save_Wrong_Greeting",
             setUp: function(){
                 var url = "/api/guestbook/default_guestbook/greeting/0";
                 this.fakeSuccessData = {
@@ -142,7 +142,7 @@ define([
                 }
 
                 this.fakeserver = sinon.fakeServer.create();
-                this.fakeserver.respondWith("DELETE", url, [
+                this.fakeserver.respondWith("PUT", url, [
                     404,
                     {
                         "Content-Type": "application/json"
