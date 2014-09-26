@@ -1,117 +1,234 @@
 define([
-    "dojo/_base/declare",
-    "dojo/_base/lang",
-    "dijit/_WidgetBase",
-    "dijit/_TemplatedMixin",
-    "dijit/_WidgetsInTemplateMixin",
-    "dojo/request",
-    "dojo/on",
-    "dojo/dom",
-    "dojo/dom-construct",
-    "dojo/_base/array",
-    "/static/js/guestbook/widget/GreetingWidget.js",
-    "/static/js/guestbook/widget/SignFormWidget.js",
-    "/static/js/guestbook/widget/models/GreetingStore.js",
-    "dojo/text!./templates/GuestbookWidget.html"
+	"dojo/_base/declare",
+	"dojo/_base/lang",
+	"dijit/_WidgetBase",
+	"dijit/_TemplatedMixin",
+	"dijit/_WidgetsInTemplateMixin",
+	"dojo/request",
+	"dojo/on",
+	"dojo/dom",
+	"dojo/dom-attr",
+	"dojo/dom-construct",
+	"dojo/dom-style",
+	"dojo/_base/array",
+	"dojo/router",
+	"dojo/hash",
+	"dojo/topic",
+	"/static/js/guestbook/widget/GreetingWidget.js",
+	"/static/js/guestbook/widget/SignFormWidget.js",
+	"/static/js/guestbook/widget/models/GreetingStore.js",
+	"dojo/text!./templates/GuestbookWidget.html"
 ], function(declare, lang, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin,
-            request, on, dom, domConstruct,
-            arrayUtil, GreetingWidget, SignFormWidget, GreetingStore, template){
-    return declare("guestbook.GuestbookWidget", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
-        // Our template - important!
-        templateString: template,
-        widgetsInTemplate: true,
-        autoLoadData: true,
+			request, on, dom, domAttr, domConstruct, domStyle, arrayUtil, router, hash, topic,
+			GreetingWidget, SignFormWidget, GreetingStore, template){
+	return declare("guestbook.GuestbookWidget", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
+		// Our template - important!
+		templateString: template,
+		widgetsInTemplate: true,
+		autoLoadData: true,
 
-        // Defaut value
-        guestbookName: "default_guestbook",
+		// Defaut value
+		guestbookName: "default_guestbook",
+		// store the last requested page so we do not make multiple requests for the same content
+		lastPage: "list",
 
-        postCreate: function () {
-            this.inherited(arguments);
+		postCreate: function () {
+			this.inherited(arguments);
 
-            this.GreetingStore = new GreetingStore();
+			this.GreetingStore = new GreetingStore();
 
-            // handle event
-            this.own(
-                on(this.switchButtonNode, "click", lang.hitch(this, "_onclickSwitchBtn"))
-            );
-            if (this.autoLoadData){
-                // load data
-                this._showListGreeting(this.guestbookName);
-            }
-            this._showSignGreetingForm();
-        },
+			// handle event
+			this.own(
+				on(this.switchButtonNode, "click", lang.hitch(this, "_onclickSwitchBtn")),
+				on(dom.byId("menu"), "a:click", function(event){
+					// prevent loading a new page - we're doing a single page app
+					event.preventDefault();
+					var page = domAttr.get(this, "href");
+					hash(page);
+				})
+			);
+			topic.subscribe("/dojo/hashchange", function(newHash){
+				hash(newHash);
+			});
+			hash(location.hash || this.lastPage, true); // set the default page hash
 
-        _showSignGreetingForm: function(){
-            this.signFormWidget = new SignFormWidget({GuestbookWidgetParent:this});
-            this.signFormWidget.placeAt(this.signFormContainerNode);
-            this.signFormWidget.startup();
-        },
+			if (this.autoLoadData){
+				// load data
+				this._showListGreeting(this.guestbookName);
+			}
+			this._showSignGreetingForm();
+		},
 
-        _showListGreeting: function(guestbookName){
-            var _isAdmin = "false";
-            var isUserAdminNode = dom.byId("is_user_admin");
-            if (isUserAdminNode){
-                _isAdmin = isUserAdminNode.value;
-            }
+		startup: function() {
+			this._registerRouter();
+		},
 
-            var _userLogin = "false";
-            var userLoginNode = dom.byId("user_login");
-            if (userLoginNode){
-                _userLogin = userLoginNode.value;
-            }
+		_showSignGreetingForm: function(){
+			this.signFormWidget = new SignFormWidget({GuestbookWidgetParent:this});
+			this.signFormWidget.placeAt(this.signFormContainerNode);
+			this.signFormWidget.startup();
+		},
 
-            var _guestbookWidgetParent = this;
+		_showListGreeting: function(guestbookName){
+			var _isAdmin = "false";
+			var isUserAdminNode = dom.byId("is_user_admin");
+			if (isUserAdminNode){
+				_isAdmin = isUserAdminNode.value;
+			}
 
-            var _greetingList = this.GreetingStore.getListGreeting(guestbookName);
-            _greetingList.then(function(results){
-                var _newDocFrag = document.createDocumentFragment();
-                arrayUtil.forEach(results.greetings, function(greeting){
-                    var greetingWidget = new GreetingWidget(greeting);
-                    // show button delete for admin
-                    if (_isAdmin.toLowerCase() == "true"){
-                        greetingWidget.setHiddenDeleteNode(false);
-                        greetingWidget.setDisabledEditor(false);
-                    }
-                    // show button edit if author written
-                    if (_userLogin == greeting.author){
-                        greetingWidget.setDisabledEditor(false);
-                    }
-                    // set guestbook name
-                    greetingWidget.setGuestbookName(guestbookName);
-                    greetingWidget.setGuestbookParent(_guestbookWidgetParent);
+			var _userLogin = "false";
+			var userLoginNode = dom.byId("user_login");
+			if (userLoginNode){
+				_userLogin = userLoginNode.value;
+			}
 
-                    greetingWidget.placeAt(_newDocFrag);
-                });
-                domConstruct.place(_newDocFrag, _guestbookWidgetParent.greetingsContainerNode);
-            }, function(err){
-                console.log(err.message);
-            }, function(progress){
-                console.log(progress);
-            });
-        },
+			var _guestbookWidgetParent = this;
 
-        _onclickSwitchBtn: function(){
-            var _guestbookNameLength = this.guestbookNameNode.value;
-            if (_guestbookNameLength > 0 && _guestbookNameLength <= 20){
-                this.reloadListGreeting(this.guestbookNameNode.value);
-                // set guestbook name for Sign form
-                this.signFormWidget._setGuestbookNameAttr(this.guestbookNameNode.value);
-            } else {
-                alert("Error: Guestbook name is empty or length > 20 chars")
-            }
-        },
+			var _greetingList = this.GreetingStore.getListGreeting(guestbookName);
+			_greetingList.then(function(results){
+				var _newDocFrag = document.createDocumentFragment();
+				arrayUtil.forEach(results.greetings, function(greeting){
+					var greetingWidget = new GreetingWidget(greeting);
+					// show button delete for admin
+					if (_isAdmin.toLowerCase() == "true"){
+						greetingWidget.setHiddenDeleteNode(false);
+						greetingWidget.setDisabledEditor(false);
+					}
+					// show button edit if author written
+					if (_userLogin == greeting.author){
+						greetingWidget.setDisabledEditor(false);
+					}
+					// set guestbook name
+					greetingWidget.setGuestbookName(guestbookName);
+					greetingWidget.setGuestbookParent(_guestbookWidgetParent);
 
-        _removeAllGreeting: function(){
-            this.greetingsContainerNode.innerHTML = "";
-        },
+					greetingWidget.placeAt(_newDocFrag);
+				});
+				domConstruct.place(_newDocFrag, _guestbookWidgetParent.greetingsContainerNode);
+			}, function(err){
+				console.log(err.message);
+			}, function(progress){
+				console.log(progress);
+			});
+		},
 
-        _setGuestbookNameAttr: function(guestbookName){
-            this.guestbookNameNode.set("value", guestbookName);
-        },
+		_onclickSwitchBtn: function(){
+			var _guestbookNameLength = this.guestbookNameNode.value.length;
+			if (_guestbookNameLength > 0 && _guestbookNameLength <= 20){
+				this.reloadListGreeting(this.guestbookNameNode.value);
+				// set guestbook name for Sign form
+				this.signFormWidget._setGuestbookNameAttr(this.guestbookNameNode.value);
+			} else {
+				alert("Error: Guestbook name is empty or length > 20 chars")
+			}
+		},
 
-        reloadListGreeting:function(guestbookName){
-            this._removeAllGreeting();
-            this._showListGreeting(guestbookName);
-        }
-    });
+		_removeAllGreeting: function(){
+			this.greetingsContainerNode.innerHTML = "";
+		},
+
+		_setGuestbookNameAttr: function(guestbookName){
+			this.guestbookNameNode.set("value", guestbookName);
+		},
+
+		reloadListGreeting:function(guestbookName){
+			this._removeAllGreeting();
+			this._showListGreeting(guestbookName);
+		},
+
+		_registerRouter: function() {
+			var thisObj = this;
+
+			router.register("list", function(evt){
+				evt.preventDefault();
+
+				var greetingsContainerNode = dom.byId("greetingsContainerNodeId");
+				domStyle.set(greetingsContainerNode, 'display', 'block');
+
+				var greetingDetailNode = dom.byId("greetingDetailNodeId");
+				domStyle.set(greetingDetailNode, 'display', 'none');
+
+				var signFormContainerNode = dom.byId("signFormContainerNodeId");
+				domStyle.set(signFormContainerNode, 'display', 'none');
+			});
+			router.register("sign", function(evt){
+				evt.preventDefault();
+
+				var greetingsContainerNode = dom.byId("greetingsContainerNodeId");
+				domStyle.set(greetingsContainerNode, 'display', 'none');
+
+				var greetingDetailNode = dom.byId("greetingDetailNodeId");
+				domStyle.set(greetingDetailNode, 'display', 'none');
+
+				var signFormContainerNode = dom.byId("signFormContainerNodeId");
+				domStyle.set(signFormContainerNode, 'display', 'block');
+			});
+			router.register("/post/:guestbook_name/:id", function (evt) {
+				var greeting_id = evt.params.id;
+				var guestbook_name = evt.params.guestbook_name;
+				evt.preventDefault();
+				thisObj._loadGreetingById(guestbook_name, greeting_id);
+			});
+			router.startup();
+		},
+
+		showGreetingDetail: function(guestbookName, greeting_id){
+			hash("/post/" + guestbookName+ "/" + greeting_id);
+		},
+
+		_loadGreetingById: function(guestbookName, greeting_id){
+			var _guestbookWidgetParent = this;
+			var greeting = this.GreetingStore.getGreeting(guestbookName, greeting_id);
+			greeting.then(function(result){
+				if (result.content){
+					var _isAdmin = "false";
+					var isUserAdminNode = dom.byId("is_user_admin");
+					if (isUserAdminNode){
+						_isAdmin = isUserAdminNode.value;
+					}
+
+					var _userLogin = "false";
+					var userLoginNode = dom.byId("user_login");
+					if (userLoginNode){
+						_userLogin = userLoginNode.value;
+					}
+
+					var _newDocFrag = document.createDocumentFragment();
+					var greetingWidget = new GreetingWidget(result);
+					// show button delete for admin
+					if (_isAdmin.toLowerCase() == "true"){
+						greetingWidget.setHiddenDeleteNode(false);
+						greetingWidget.setDisabledEditor(false);
+					}
+					// show button edit if author written
+					if (_userLogin == result.author){
+						greetingWidget.setDisabledEditor(false);
+					}
+					// set guestbook name
+					greetingWidget.setGuestbookName(guestbookName);
+					greetingWidget.setGuestbookParent(_guestbookWidgetParent);
+
+					greetingWidget.placeAt(_newDocFrag);
+
+					var greetingsContainerNode = dom.byId("greetingsContainerNodeId");
+					domStyle.set(greetingsContainerNode, 'display', 'none');
+
+					var greetingDetailNode = dom.byId("greetingDetailNodeId");
+					domStyle.set(greetingDetailNode, 'display', 'block');
+
+					greetingDetailNode.innerHTML = "";
+					domConstruct.place(_newDocFrag, greetingDetailNode);
+
+					var signFormContainerNode = dom.byId("signFormContainerNodeId");
+					domStyle.set(signFormContainerNode, 'display', 'none');
+				} else {
+					alert("Wrong id");
+				}
+			}, function(err){
+				console.log(err.message);
+			}, function(progress){
+				console.log(progress);
+			});
+		}
+	});
 });

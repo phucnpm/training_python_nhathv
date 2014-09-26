@@ -40,7 +40,9 @@ define([
             if (_contentLength > 0 && _contentLength <= 10){
                 var _createGreetingDeferred = this.GreetingStore.createGreeting(guestbookName, greetingContent);
                 _createGreetingDeferred.then(function(results){
+					console.log("id : " + results.greeting_id);
                     guestbookWidget.reloadListGreeting(guestbookName);
+					guestbookWidget.showGreetingDetail(guestbookName, results.greeting_id);
                 },function(err){
                     console.log(err.message);
                 }, function(progress){

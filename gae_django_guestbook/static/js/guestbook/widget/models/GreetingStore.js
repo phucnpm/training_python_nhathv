@@ -95,6 +95,21 @@ define([
             return deferred.promise;
         },
 
+        // Get detail of a greeting
+        getGreeting: function(guestbookName, greetingId){
+            this.set('guestbookName', guestbookName);
+
+            var deferred = new Deferred();
+            this.store.get(greetingId).then(function(data){
+                console.log("The server returned: ", data);
+                deferred.resolve(data);
+            }, function(error){
+                console.log("The server error: ", error.message);
+                deferred.reject(error);
+            });
+            return deferred.promise;
+        },
+
         // get list greeting
         getListGreeting: function(guestbookName){
             this.set('guestbookName', guestbookName);

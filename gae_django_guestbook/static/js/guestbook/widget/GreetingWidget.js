@@ -62,11 +62,21 @@ define([
                 // handle button Delete
                 on(this.deleteButtonNode, "click", lang.hitch(this, "_onclickDeleteBtn"))
                 // button save in InLineEditText
-                ,on(this.contentNode, "change", lang.hitch(this, "_onclickSaveBtn"))
+                ,on(this.contentNode, "change", lang.hitch(this, "_onclickSaveBtn")),
+
+                on(this.detailButtonNode, "click", lang.hitch(this, "_onClickGreeting"))
             );
 
             this.GreetingStore = new GreetingStore();
         },
+
+		_onClickGreeting: function(){
+			console.log("_onClickGreeting: " + this.greetingIdNode.value);
+			var _guestbookParent = this.GuestbookWidgetParent;
+			var _guestbookName = this.guestbookName;
+			var _greetingId = this.greetingIdNode.value;
+			_guestbookParent.showGreetingDetail(_guestbookName, _greetingId);
+		},
 
         _changeBackground: function(newColor, node) {
             // If we have an animation, stop it
