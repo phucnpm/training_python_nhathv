@@ -1,5 +1,3 @@
-__author__ = 'NhatHV'
-
 import json
 
 from google.appengine.api import users
@@ -7,7 +5,7 @@ from google.appengine.api.labs import taskqueue
 from google.appengine.datastore.datastore_query import Cursor
 from google.appengine.api import datastore_errors
 
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.views.generic import FormView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeletionMixin
@@ -60,6 +58,7 @@ class APIListGreeting(JSONResponseMixin, FormView):
         if next_cursor:
             data['cursor'] = next_cursor.urlsafe()
         data['is_more'] = is_more
+        data['guestbook_name'] = guestbook_name
 
         return data
 
@@ -74,6 +73,26 @@ class APIListGreeting(JSONResponseMixin, FormView):
                                                        curs_str)
 
         return greetings, nextcurs, more
+
+    # Using method form_valid for API create Greeting
+    def post(self, request, *args, **kwargs):
+        # convert request.body to request for form validation (if needed)
+        try:
+            json_object = json.loads(self.request.body)
+        except ValueError:
+            # invalid json
+            self.request.POST = QueryDict(self.request.body)
+        else:
+            # valid json
+            self.request.POST = json_object
+
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
     # Using method form_valid for API create Greeting
     def form_valid(self, form):
@@ -130,12 +149,30 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
 
     # Using method PUT for action update greeting
     def put(self, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            return self.form_valid(form)
+        # convert request.body to request for form validation (if needed)
+        if not self.request.POST:
+            try:
+                json_object = json.loads(self.request.body)
+            except ValueError:
+                # invalid json
+                self.request.POST = QueryDict(self.request.body)
+            else:
+                # valid json
+                self.request.POST = json_object
+
+        # get data for verify role
+        greeting_id = self.kwargs.get('greeting_id', -1)
+        guestbook_name = self.kwargs.get('guestbook_name',
+                                         AppConstants.get_default_guestbook_name())
+        if self.canUpdateGreeting(guestbook_name, greeting_id):
+            form_class = self.get_form_class()
+            form = self.get_form(form_class)
+            if form.is_valid():
+                return self.form_valid(form)
+            else:
+                return self.form_invalid(form)
         else:
-            return self.form_invalid(form)
+            return HttpResponse(status=404)
 
     # Using method form_valid for action update greeting
     def form_valid(self, form):
@@ -156,7 +193,30 @@ class APIGreetingDetail(JSONResponseMixin, DetailView, FormView, DeletionMixin):
         greeting_id = self.kwargs.get('greeting_id', -1)
         guestbook_name = self.kwargs.get('guestbook_name',
                                          AppConstants.get_default_guestbook_name())
-        if Guestbook.delete_greeting_by_id(guestbook_name, greeting_id):
-            return HttpResponse(status=204)
+        if self.canDeleteGreeting():
+            if Guestbook.delete_greeting_by_id(guestbook_name, greeting_id):
+                return HttpResponse(status=204)
+            else:
+                return HttpResponse(status=404)
         else:
             return HttpResponse(status=404)
+
+    # Verify this user can update Greeting
+    def canUpdateGreeting(self, guestbook_name, greeting_id):
+        if users.is_current_user_admin():
+            return True
+        elif users.get_current_user():
+            greeting = Guestbook.get_greeting_by_id(guestbook_name, greeting_id)
+            if greeting:
+                return users.get_current_user().nickname() == greeting.author
+            else:
+                return False
+        else:
+            return False
+
+    # Verify this user can delete Greeting
+    def canDeleteGreeting(self):
+        if users.is_current_user_admin():
+            return True
+        else:
+            return False

@@ -162,3 +162,25 @@ class EditGreeting(FormView):
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
+
+
+class DojoGuestbook(TemplateView):
+    template_name = "guestbook/dojo_guestbook.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(DojoGuestbook, self).get_context_data(**kwargs)
+
+        # create login/logout url
+        if users.get_current_user():
+            url = users.create_logout_url(self.request.get_full_path())
+            url_linktext = 'Logout'
+            context['user_login'] = users.get_current_user().nickname()
+            context['is_user_admin'] = users.is_current_user_admin()
+        else:
+            url = users.create_login_url(self.request.get_full_path())
+            url_linktext = 'Login'
+
+        context['url'] = url
+        context['url_linktext'] = url_linktext
+
+        return context

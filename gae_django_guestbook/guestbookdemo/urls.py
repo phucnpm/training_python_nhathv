@@ -1,5 +1,3 @@
-__author__ = 'NhatHV'
-
 from django.conf.urls import patterns, url
 
 from guestbookdemo import views
@@ -20,4 +18,6 @@ urlpatterns = patterns('',
     url(r'^api/guestbook/(?P<guestbook_name>(.)+)/greeting/(?P<greeting_id>(.)+)$',
         APIGreetingDetail.as_view(),
         name="detail-greeting"),
+    #dojo-demo
+    url(r'^dojo/$', views.DojoGuestbook.as_view())
 )

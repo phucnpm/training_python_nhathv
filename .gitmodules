@@ -1,0 +1,12 @@
+[submodule "gae_django_guestbook/static/js/dojo/dojo"]
+	path = gae_django_guestbook/static/js/dojo/dojo
+	url = https://github.com/dojo/dojo
+[submodule "gae_django_guestbook/static/js/dojo/dijit"]
+	path = gae_django_guestbook/static/js/dojo/dijit
+	url = https://github.com/dojo/dijit
+[submodule "gae_django_guestbook/static/js/dojo/dojox"]
+	path = gae_django_guestbook/static/js/dojo/dojox
+	url = https://github.com/dojo/dojox
+[submodule "gae_django_guestbook/static/js/dojo/util"]
+	path = gae_django_guestbook/static/js/dojo/util
+	url = https://github.com/dojo/util
