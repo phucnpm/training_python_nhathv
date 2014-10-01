@@ -84,8 +84,7 @@ define([
 
 			var _guestbookWidgetParent = this;
 
-			var _greetingList = this.GreetingStore.getListGreeting(guestbookName);
-			_greetingList.then(function(results){
+			this.GreetingStore.getListGreeting(guestbookName).then(function(results){
 				var _newDocFrag = document.createDocumentFragment();
 				arrayUtil.forEach(results.greetings, function(greeting){
 					var greetingWidget = new GreetingWidget(greeting);
@@ -164,9 +163,10 @@ define([
 				domStyle.set(signFormContainerNode, 'display', 'block');
 			});
 			router.register("/post/:guestbook_name/:id", function (evt) {
+				evt.preventDefault();
+
 				var greeting_id = evt.params.id;
 				var guestbook_name = evt.params.guestbook_name;
-				evt.preventDefault();
 				thisObj._loadGreetingById(guestbook_name, greeting_id);
 			});
 			router.startup();
@@ -178,8 +178,7 @@ define([
 
 		_loadGreetingById: function(guestbookName, greeting_id){
 			var _guestbookWidgetParent = this;
-			var greeting = this.GreetingStore.getGreeting(guestbookName, greeting_id);
-			greeting.then(function(result){
+			this.GreetingStore.getGreeting(guestbookName, greeting_id).then(function(result){
 				if (result.content){
 					var _isAdmin = "false";
 					var isUserAdminNode = dom.byId("is_user_admin");
