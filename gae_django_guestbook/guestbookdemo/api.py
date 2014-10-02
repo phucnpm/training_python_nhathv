@@ -1,4 +1,4 @@
-import json
+import json, logging
 
 from google.appengine.api import users
 from google.appengine.api.labs import taskqueue
@@ -106,8 +106,10 @@ class APIListGreeting(JSONResponseMixin, FormView):
             taskqueue.add(url='/send_email/',
                           method='GET',
                           params={'user_email': user_email})
-
-            return HttpResponse(status=204)
+            # return HttpResponse(status=204)
+            data = {};
+            data['greeting_id'] = new_greeting.key.id();
+            return self.render_to_response(data);
         else:
             return HttpResponse(status=404)
 

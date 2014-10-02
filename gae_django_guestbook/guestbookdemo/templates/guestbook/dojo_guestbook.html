@@ -7,6 +7,10 @@
 </head>
 <body>
 <h1>Guestbook</h1>
+<br>
+<a href="{{ url }}">{{ url_linktext }}</a>
+<br>
+<br>
 <div id="greetingContainer"></div>
 <!-- Configure Dojo -->
 <script>
@@ -28,19 +32,20 @@
     require([
         "dojo/parser",
         "dojo/_base/config",
+        "myGuestbook/widget/app",
         "myGuestbook/widget/GuestbookWidget",
         "dojo/domReady!"
-    ], function(parser, config){
+    ], function(parser, config, app){
         if (!config.parseOnLoad) {
             parser.parse();
         }
+        app();
     });
 </script>
 <br>
 <input id="is_user_admin" value="{{ is_user_admin }}" type="hidden"/>
 <input id="user_login" value="{{ user_login }}" type="hidden"/>
 <br>
-<br>
-<a href="{{ url }}">{{ url_linktext }}</a>
+<input id="csrf" value="{{ csrf_token }}" type="hidden"/>
 </body>
 </html>
