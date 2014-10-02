@@ -32,12 +32,14 @@
     require([
         "dojo/parser",
         "dojo/_base/config",
+        "myGuestbook/widget/app",
         "myGuestbook/widget/GuestbookWidget",
         "dojo/domReady!"
-    ], function(parser, config){
+    ], function(parser, config, app){
         if (!config.parseOnLoad) {
             parser.parse();
         }
+        app();
     });
 </script>
 <br>

@@ -17,10 +17,11 @@ define([
 	"/static/js/guestbook/widget/GreetingWidget.js",
 	"/static/js/guestbook/widget/SignFormWidget.js",
 	"/static/js/guestbook/widget/models/GreetingStore.js",
-	"dojo/text!./templates/GuestbookWidget.html"
+	"dojo/text!./templates/GuestbookWidget.html",
+	"/static/js/guestbook/widget/models/app.js"
 ], function(declare, lang, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin,
 			request, on, dom, domAttr, domConstruct, domStyle, arrayUtil, router, hash, topic,
-			GreetingWidget, SignFormWidget, GreetingStore, template){
+			GreetingWidget, SignFormWidget, GreetingStore, template, appModel){
 	return declare("guestbook.GuestbookWidget", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
 		// Our template - important!
 		templateString: template,
@@ -31,6 +32,8 @@ define([
 		guestbookName: "default_guestbook",
 		// store the last requested page so we do not make multiple requests for the same content
 		lastPage: "list",
+
+		model: appModel.getDefaultInstance(),
 
 		postCreate: function () {
 			this.inherited(arguments);
@@ -57,10 +60,54 @@ define([
 				this._showListGreeting(this.guestbookName);
 			}
 			this._showSignGreetingForm();
+
+			var thisObj = this;
+			this.model.watch('route', function(name, oldValue, value) {
+				thisObj.render(value);
+			});
 		},
 
-		startup: function() {
-			this._registerRouter();
+		render: function(value){
+			switch (value.screen){
+				case 'list':
+					this.showList();
+					break;
+				case 'sign':
+					this.showSign();
+					break;
+				case 'post':
+					this.showGreeting(value);
+					break;
+				default :
+					this.showList();
+					break;
+			}
+		},
+
+		showList: function(){
+			var greetingsContainerNode = dom.byId("greetingsContainerNodeId");
+			domStyle.set(greetingsContainerNode, 'display', 'block');
+
+			var greetingDetailNode = dom.byId("greetingDetailNodeId");
+			domStyle.set(greetingDetailNode, 'display', 'none');
+
+			var signFormContainerNode = dom.byId("signFormContainerNodeId");
+			domStyle.set(signFormContainerNode, 'display', 'none');
+		},
+
+		showSign: function(){
+			var greetingsContainerNode = dom.byId("greetingsContainerNodeId");
+			domStyle.set(greetingsContainerNode, 'display', 'none');
+
+			var greetingDetailNode = dom.byId("greetingDetailNodeId");
+			domStyle.set(greetingDetailNode, 'display', 'none');
+
+			var signFormContainerNode = dom.byId("signFormContainerNodeId");
+			domStyle.set(signFormContainerNode, 'display', 'block');
+		},
+
+		showGreeting: function(greeting){
+			this._loadGreetingById(greeting.guestbookName, greeting.greetingId);
 		},
 
 		_showSignGreetingForm: function(){
@@ -133,43 +180,6 @@ define([
 		reloadListGreeting:function(guestbookName){
 			this._removeAllGreeting();
 			this._showListGreeting(guestbookName);
-		},
-
-		_registerRouter: function() {
-			var thisObj = this;
-
-			router.register("list", function(evt){
-				evt.preventDefault();
-
-				var greetingsContainerNode = dom.byId("greetingsContainerNodeId");
-				domStyle.set(greetingsContainerNode, 'display', 'block');
-
-				var greetingDetailNode = dom.byId("greetingDetailNodeId");
-				domStyle.set(greetingDetailNode, 'display', 'none');
-
-				var signFormContainerNode = dom.byId("signFormContainerNodeId");
-				domStyle.set(signFormContainerNode, 'display', 'none');
-			});
-			router.register("sign", function(evt){
-				evt.preventDefault();
-
-				var greetingsContainerNode = dom.byId("greetingsContainerNodeId");
-				domStyle.set(greetingsContainerNode, 'display', 'none');
-
-				var greetingDetailNode = dom.byId("greetingDetailNodeId");
-				domStyle.set(greetingDetailNode, 'display', 'none');
-
-				var signFormContainerNode = dom.byId("signFormContainerNodeId");
-				domStyle.set(signFormContainerNode, 'display', 'block');
-			});
-			router.register("/post/:guestbook_name/:id", function (evt) {
-				evt.preventDefault();
-
-				var greeting_id = evt.params.id;
-				var guestbook_name = evt.params.guestbook_name;
-				thisObj._loadGreetingById(guestbook_name, greeting_id);
-			});
-			router.startup();
 		},
 
 		showGreetingDetail: function(guestbookName, greeting_id){
